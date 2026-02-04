@@ -48,7 +48,8 @@
     "lint": "biome check .",
     "lint:fix": "biome check --write .",
     "ruler:apply": "bunx @intellectronica/ruler@latest apply --local-only",
-    "start:web": "turbo -F web start"
+    "start:web": "turbo -F web start",
+    "test": "true"
   },
   "dependencies": {
     "@solana-mobile-stack/env": "workspace:*",

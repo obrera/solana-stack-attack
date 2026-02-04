@@ -95,14 +95,14 @@ const main = async () => {
 
   Bun.serve({
     port,
-    async fetch(request) {
+    async fetch(request: Request) {
       const url = new URL(request.url)
       const pathname = url.pathname
 
       if (pathname.startsWith('/assets/')) {
         const cached = assetCache.get(pathname)
         if (cached) {
-          return new Response(cached.content, {
+          return new Response(cached.content as BodyInit, {
             headers: {
               'content-type': cached.type,
               'cache-control': 'public, max-age=31536000, immutable',
