@@ -1,0 +1,20 @@
+{
+  "expo": {
+    "scheme": "solana-mobile-stack",
+    "userInterfaceStyle": "automatic",
+    "orientation": "default",
+    "web": {
+      "bundler": "metro"
+    },
+    "name": "solana-mobile-stack",
+    "slug": "solana-mobile-stack",
+    "plugins": ["expo-font"],
+    "experiments": {
+      "typedRoutes": true,
+      "reactCompiler": true
+    },
+    "android": {
+      "package": "com.anonymous.solanamobilestack"
+    }
+  }
+}

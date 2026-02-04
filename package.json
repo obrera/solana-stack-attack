@@ -1,0 +1,67 @@
+{
+  "name": "solana-mobile-stack",
+  "private": true,
+  "workspaces": {
+    "packages": [
+      "apps/*",
+      "packages/*"
+    ],
+    "catalog": {
+      "dotenv": "^17.2.2",
+      "zod": "^4.1.13",
+      "typescript": "^5",
+      "@types/bun": "^1.3.4",
+      "hono": "^4.8.2",
+      "@orpc/server": "^1.12.2",
+      "@orpc/openapi": "^1.12.2",
+      "@orpc/zod": "^1.12.2",
+      "better-auth": "^1.4.18",
+      "ai": "^6.0.3",
+      "@libsql/client": "0.15.15",
+      "libsql": "0.5.22",
+      "@orpc/tanstack-query": "^1.12.2",
+      "@orpc/client": "^1.12.2",
+      "@ai-sdk/react": "^3.0.3",
+      "@better-auth/expo": "^1.4.18",
+      "drizzle-orm": "^0.45.1"
+    }
+  },
+  "type": "module",
+  "scripts": {
+    "build": "turbo build",
+    "check-types": "turbo check-types",
+    "db:generate": "turbo -F @solana-mobile-stack/db db:generate",
+    "db:local": "turbo -F @solana-mobile-stack/db db:local",
+    "db:migrate": "turbo -F @solana-mobile-stack/db db:migrate",
+    "db:push": "turbo -F @solana-mobile-stack/db db:push",
+    "db:studio": "turbo -F @solana-mobile-stack/db db:studio",
+    "dev": "turbo dev",
+    "dev:native": "turbo -F native dev",
+    "dev:server": "turbo -F server dev",
+    "dev:web": "turbo -F web dev",
+    "docker:build:server": "docker build -f Dockerfile.server -t ghcr.io/beeman/solana-mobile-stack-server .",
+    "docker:build:web": "docker build -f Dockerfile.web -t ghcr.io/beeman/solana-mobile-stack-web .",
+    "docker:push:server": "docker push ghcr.io/beeman/solana-mobile-stack-server",
+    "docker:push:web": "docker push ghcr.io/beeman/solana-mobile-stack-web",
+    "docker:run:server": "docker run --rm --name solana-mobile-stack-server --init --stop-signal=SIGINT -it --env-file apps/server/.env -p 3000:3000 ghcr.io/beeman/solana-mobile-stack-server",
+    "docker:run:web": "docker run --rm --name solana-mobile-stack-web --init --stop-signal=SIGINT -it -p 3001:3001 ghcr.io/beeman/solana-mobile-stack-web",
+    "lint": "biome check .",
+    "lint:fix": "biome check --write .",
+    "ruler:apply": "bunx @intellectronica/ruler@latest apply --local-only",
+    "start:web": "turbo -F web start"
+  },
+  "dependencies": {
+    "@solana-mobile-stack/env": "workspace:*",
+    "dotenv": "catalog:",
+    "zod": "catalog:"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "^2.2.0",
+    "@solana-mobile-stack/config": "workspace:*",
+    "@types/bun": "catalog:",
+    "lefthook": "^2.0.13",
+    "turbo": "^2.6.3",
+    "typescript": "catalog:"
+  },
+  "packageManager": "bun@1.3.8"
+}
