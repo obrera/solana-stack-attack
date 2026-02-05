@@ -35,6 +35,11 @@ services:
       - server
     environment:
       - NODE_ENV=production
+      - DATABASE_URL=http://sqld:8080
+      - DATABASE_AUTH_TOKEN=dummy-token-for-local
+      - BETTER_AUTH_SECRET=${BETTER_AUTH_SECRET}
+      - BETTER_AUTH_URL=https://stack-api.colmena.dev
+      - CORS_ORIGIN=https://stack.colmena.dev
     networks:
       - internal
       - dokploy-network
