@@ -27,6 +27,24 @@ function DrawerLayout() {
       }}
     >
       <Drawer.Screen
+        name="game"
+        options={{
+          headerTitle: 'Stack Attack',
+          drawerLabel: ({ color, focused }) => (
+            <Text style={{ color: focused ? color : themeColorForeground }}>
+              Game
+            </Text>
+          ),
+          drawerIcon: ({ size, color, focused }) => (
+            <Ionicons
+              name="game-controller"
+              size={size}
+              color={focused ? color : themeColorForeground}
+            />
+          ),
+        }}
+      />
+      <Drawer.Screen
         name="index"
         options={{
           headerTitle: 'Home',
