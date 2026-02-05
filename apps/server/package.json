@@ -15,10 +15,10 @@
     "@orpc/openapi": "catalog:",
     "@orpc/server": "catalog:",
     "@orpc/zod": "catalog:",
-    "@solana-mobile-stack/api": "workspace:*",
-    "@solana-mobile-stack/auth": "workspace:*",
-    "@solana-mobile-stack/db": "workspace:*",
-    "@solana-mobile-stack/env": "workspace:*",
+    "@solana-stack-attack/api": "workspace:*",
+    "@solana-stack-attack/auth": "workspace:*",
+    "@solana-stack-attack/db": "workspace:*",
+    "@solana-stack-attack/env": "workspace:*",
     "ai": "catalog:",
     "better-auth": "catalog:",
     "dotenv": "catalog:",
@@ -26,7 +26,7 @@
     "zod": "catalog:"
   },
   "devDependencies": {
-    "@solana-mobile-stack/config": "workspace:*",
+    "@solana-stack-attack/config": "workspace:*",
     "@types/bun": "catalog:",
     "tsdown": "^0.16.5",
     "typescript": "catalog:"

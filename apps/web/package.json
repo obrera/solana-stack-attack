@@ -16,10 +16,10 @@
     "@orpc/client": "catalog:",
     "@orpc/server": "catalog:",
     "@orpc/tanstack-query": "catalog:",
-    "@solana-mobile-stack/api": "workspace:*",
-    "@solana-mobile-stack/auth": "workspace:*",
-    "@solana-mobile-stack/env": "workspace:*",
-    "@solana-mobile-stack/solana-client": "workspace:*",
+    "@solana-stack-attack/api": "workspace:*",
+    "@solana-stack-attack/auth": "workspace:*",
+    "@solana-stack-attack/env": "workspace:*",
+    "@solana-stack-attack/solana-client": "workspace:*",
     "@solana-mobile/wallet-standard-mobile": "^0.4.4",
     "@solana-program/memo": "^0.10.0",
     "@solana/kit": "catalog:",
@@ -53,7 +53,7 @@
     "zod": "catalog:"
   },
   "devDependencies": {
-    "@solana-mobile-stack/config": "workspace:*",
+    "@solana-stack-attack/config": "workspace:*",
     "@tanstack/react-query-devtools": "^5.91.1",
     "@tanstack/react-router-devtools": "^1.141.1",
     "@testing-library/dom": "^10.4.0",

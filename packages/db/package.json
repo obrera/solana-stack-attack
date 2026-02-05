@@ -1,5 +1,5 @@
 {
-  "name": "@solana-mobile-stack/db",
+  "name": "@solana-stack-attack/db",
   "type": "module",
   "exports": {
     ".": {
@@ -19,14 +19,14 @@
   },
   "dependencies": {
     "@libsql/client": "catalog:",
-    "@solana-mobile-stack/env": "workspace:*",
+    "@solana-stack-attack/env": "workspace:*",
     "dotenv": "catalog:",
     "drizzle-orm": "catalog:",
     "libsql": "catalog:",
     "zod": "catalog:"
   },
   "devDependencies": {
-    "@solana-mobile-stack/config": "workspace:*",
+    "@solana-stack-attack/config": "workspace:*",
     "drizzle-kit": "^0.31.8",
     "typescript": "catalog:"
   }

@@ -1,5 +1,5 @@
 {
-  "name": "solana-mobile-stack",
+  "name": "solana-stack-attack",
   "private": true,
   "workspaces": {
     "packages": [
@@ -37,23 +37,23 @@
   "scripts": {
     "build": "turbo build",
     "check-types": "turbo check-types",
-    "db:generate": "turbo -F @solana-mobile-stack/db db:generate",
-    "db:local": "turbo -F @solana-mobile-stack/db db:local",
-    "db:migrate": "turbo -F @solana-mobile-stack/db db:migrate",
-    "db:push": "turbo -F @solana-mobile-stack/db db:push",
-    "db:studio": "turbo -F @solana-mobile-stack/db db:studio",
+    "db:generate": "turbo -F @solana-stack-attack/db db:generate",
+    "db:local": "turbo -F @solana-stack-attack/db db:local",
+    "db:migrate": "turbo -F @solana-stack-attack/db db:migrate",
+    "db:push": "turbo -F @solana-stack-attack/db db:push",
+    "db:studio": "turbo -F @solana-stack-attack/db db:studio",
     "db:up": "docker compose up",
     "db:down": "docker compose down",
     "dev": "turbo dev",
     "dev:native": "turbo -F native dev",
     "dev:server": "turbo -F server dev",
     "dev:web": "turbo -F web dev",
-    "docker:build:server": "docker build -f Dockerfile.server -t ghcr.io/beeman/solana-mobile-stack-server .",
-    "docker:build:web": "docker build -f Dockerfile.web -t ghcr.io/beeman/solana-mobile-stack-web .",
-    "docker:push:server": "docker push ghcr.io/beeman/solana-mobile-stack-server",
-    "docker:push:web": "docker push ghcr.io/beeman/solana-mobile-stack-web",
-    "docker:run:server": "docker run --rm --name solana-mobile-stack-server --init --stop-signal=SIGINT -it --env-file apps/server/.env -p 3000:3000 ghcr.io/beeman/solana-mobile-stack-server",
-    "docker:run:web": "docker run --rm --name solana-mobile-stack-web --init --stop-signal=SIGINT -it -p 3001:3001 ghcr.io/beeman/solana-mobile-stack-web",
+    "docker:build:server": "docker build -f Dockerfile.server -t ghcr.io/obrera/solana-stack-attack-server .",
+    "docker:build:web": "docker build -f Dockerfile.web -t ghcr.io/obrera/solana-stack-attack-web .",
+    "docker:push:server": "docker push ghcr.io/obrera/solana-stack-attack-server",
+    "docker:push:web": "docker push ghcr.io/obrera/solana-stack-attack-web",
+    "docker:run:server": "docker run --rm --name solana-stack-attack-server --init --stop-signal=SIGINT -it --env-file apps/server/.env -p 3000:3000 ghcr.io/obrera/solana-stack-attack-server",
+    "docker:run:web": "docker run --rm --name solana-stack-attack-web --init --stop-signal=SIGINT -it -p 3001:3001 ghcr.io/obrera/solana-stack-attack-web",
     "lint": "biome check .",
     "lint:fix": "biome check --write .",
     "ruler:apply": "bunx @intellectronica/ruler@latest apply --local-only",
@@ -61,13 +61,13 @@
     "test": "turbo test"
   },
   "dependencies": {
-    "@solana-mobile-stack/env": "workspace:*",
+    "@solana-stack-attack/env": "workspace:*",
     "dotenv": "catalog:",
     "zod": "catalog:"
   },
   "devDependencies": {
     "@biomejs/biome": "^2.2.0",
-    "@solana-mobile-stack/config": "workspace:*",
+    "@solana-stack-attack/config": "workspace:*",
     "@types/bun": "catalog:",
     "lefthook": "^2.0.13",
     "turbo": "^2.6.3",

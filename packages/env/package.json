@@ -1,5 +1,5 @@
 {
-  "name": "@solana-mobile-stack/env",
+  "name": "@solana-stack-attack/env",
   "version": "0.0.0",
   "private": true,
   "type": "module",
@@ -17,7 +17,7 @@
     "zod": "catalog:"
   },
   "devDependencies": {
-    "@solana-mobile-stack/config": "workspace:*",
+    "@solana-stack-attack/config": "workspace:*",
     "@types/bun": "catalog:",
     "typescript": "catalog:"
   }

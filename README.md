@@ -35,8 +35,8 @@ A full-stack starter kit for building mobile apps on Solana. Built with Expo, Re
 ### 1. Clone and Install
 
 ```bash
-git clone https://github.com/beeman/solana-mobile-stack.git
-cd solana-mobile-stack
+git clone https://github.com/obrera/solana-stack-attack.git
+cd solana-stack-attack
 bun install
 ```
 
@@ -106,7 +106,7 @@ On the emulator, install a wallet app from the Play Store to test wallet connect
 ## Project Structure
 
 ```
-solana-mobile-stack/
+solana-stack-attack/
 ├── apps/
 │   ├── native/      # Mobile app (React Native, Expo)
 │   ├── web/         # Web app (React, TanStack Start)

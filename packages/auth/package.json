@@ -1,5 +1,5 @@
 {
-  "name": "@solana-mobile-stack/auth",
+  "name": "@solana-stack-attack/auth",
   "type": "module",
   "exports": {
     ".": {
@@ -14,14 +14,14 @@
   },
   "dependencies": {
     "@better-auth/expo": "catalog:",
-    "@solana-mobile-stack/db": "workspace:*",
-    "@solana-mobile-stack/env": "workspace:*",
+    "@solana-stack-attack/db": "workspace:*",
+    "@solana-stack-attack/env": "workspace:*",
     "better-auth": "catalog:",
     "dotenv": "catalog:",
     "zod": "catalog:"
   },
   "devDependencies": {
-    "@solana-mobile-stack/config": "workspace:*",
+    "@solana-stack-attack/config": "workspace:*",
     "typescript": "catalog:"
   }
 }

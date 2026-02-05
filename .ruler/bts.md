@@ -1,6 +1,6 @@
 # Better-T-Stack Project Rules
 
-This is a solana-mobile-stack project created with Better-T-Stack CLI.
+This is a solana-stack-attack project created with Better-T-Stack CLI.
 
 ## Project Structure
 

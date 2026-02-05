@@ -1,5 +1,5 @@
 {
-  "extends": "@solana-mobile-stack/config/tsconfig.base.json",
+  "extends": "@solana-stack-attack/config/tsconfig.base.json",
   "compilerOptions": {
     "declaration": true,
     "declarationMap": true,

@@ -1,13 +1,13 @@
 {
   "expo": {
-    "scheme": "solana-mobile-stack",
+    "scheme": "solana-stack-attack",
     "userInterfaceStyle": "automatic",
     "orientation": "default",
     "web": {
       "bundler": "metro"
     },
-    "name": "solana-mobile-stack",
-    "slug": "solana-mobile-stack",
+    "name": "solana-stack-attack",
+    "slug": "solana-stack-attack",
     "plugins": ["expo-font"],
     "experiments": {
       "typedRoutes": true,

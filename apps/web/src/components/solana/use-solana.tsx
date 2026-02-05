@@ -9,7 +9,7 @@ import {
   signAndSendTransactionMessageWithSigners,
   type TransactionSigner,
 } from '@solana/kit'
-import { createSolanaClient } from '@solana-mobile-stack/solana-client'
+import { createSolanaClient } from '@solana-stack-attack/solana-client'
 import { type GetExplorerUrlProps, useWalletUi } from '@wallet-ui/react'
 import { useCallback } from 'react'
 

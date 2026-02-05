@@ -2,5 +2,5 @@
   "compilerOptions": {
     "outDir": "dist"
   },
-  "extends": "@solana-mobile-stack/config/tsconfig.base.json"
+  "extends": "@solana-stack-attack/config/tsconfig.base.json"
 }

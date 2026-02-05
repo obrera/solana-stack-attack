@@ -22,9 +22,9 @@
     "@orpc/tanstack-query": "catalog:",
     "@react-navigation/drawer": "^7.3.9",
     "@react-navigation/elements": "^2.8.1",
-    "@solana-mobile-stack/api": "workspace:*",
-    "@solana-mobile-stack/env": "workspace:*",
-    "@solana-mobile-stack/solana-client": "workspace:*",
+    "@solana-stack-attack/api": "workspace:*",
+    "@solana-stack-attack/env": "workspace:*",
+    "@solana-stack-attack/solana-client": "workspace:*",
     "@solana/kit": "catalog:",
     "@stardazed/streams-text-encoding": "^1.0.2",
     "@tanstack/react-query": "^5.90.12",
@@ -63,7 +63,7 @@
     "zod": "catalog:"
   },
   "devDependencies": {
-    "@solana-mobile-stack/config": "workspace:*",
+    "@solana-stack-attack/config": "workspace:*",
     "@types/node": "^24.10.0",
     "@types/react": "~19.1.0",
     "typescript": "catalog:"

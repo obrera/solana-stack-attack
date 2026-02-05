@@ -1,4 +1,4 @@
-import { env } from '@solana-mobile-stack/env/web'
+import { env } from '@solana-stack-attack/env/web'
 import { createAuthClient } from 'better-auth/react'
 
 export const authClient = createAuthClient({

@@ -3,15 +3,15 @@
   "configVersion": 1,
   "workspaces": {
     "": {
-      "name": "solana-mobile-stack",
+      "name": "solana-stack-attack",
       "dependencies": {
-        "@solana-mobile-stack/env": "workspace:*",
+        "@solana-stack-attack/env": "workspace:*",
         "dotenv": "catalog:",
         "zod": "catalog:",
       },
       "devDependencies": {
         "@biomejs/biome": "^2.2.0",
-        "@solana-mobile-stack/config": "workspace:*",
+        "@solana-stack-attack/config": "workspace:*",
         "@types/bun": "catalog:",
         "lefthook": "^2.0.13",
         "turbo": "^2.6.3",
@@ -31,9 +31,9 @@
         "@orpc/tanstack-query": "catalog:",
         "@react-navigation/drawer": "^7.3.9",
         "@react-navigation/elements": "^2.8.1",
-        "@solana-mobile-stack/api": "workspace:*",
-        "@solana-mobile-stack/env": "workspace:*",
-        "@solana-mobile-stack/solana-client": "workspace:*",
+        "@solana-stack-attack/api": "workspace:*",
+        "@solana-stack-attack/env": "workspace:*",
+        "@solana-stack-attack/solana-client": "workspace:*",
         "@solana/kit": "catalog:",
         "@stardazed/streams-text-encoding": "^1.0.2",
         "@tanstack/react-query": "^5.90.12",
@@ -72,7 +72,7 @@
         "zod": "catalog:",
       },
       "devDependencies": {
-        "@solana-mobile-stack/config": "workspace:*",
+        "@solana-stack-attack/config": "workspace:*",
         "@types/node": "^24.10.0",
         "@types/react": "~19.1.0",
         "typescript": "catalog:",
@@ -86,10 +86,10 @@
         "@orpc/openapi": "catalog:",
         "@orpc/server": "catalog:",
         "@orpc/zod": "catalog:",
-        "@solana-mobile-stack/api": "workspace:*",
-        "@solana-mobile-stack/auth": "workspace:*",
-        "@solana-mobile-stack/db": "workspace:*",
-        "@solana-mobile-stack/env": "workspace:*",
+        "@solana-stack-attack/api": "workspace:*",
+        "@solana-stack-attack/auth": "workspace:*",
+        "@solana-stack-attack/db": "workspace:*",
+        "@solana-stack-attack/env": "workspace:*",
         "ai": "catalog:",
         "better-auth": "catalog:",
         "dotenv": "catalog:",
@@ -97,7 +97,7 @@
         "zod": "catalog:",
       },
       "devDependencies": {
-        "@solana-mobile-stack/config": "workspace:*",
+        "@solana-stack-attack/config": "workspace:*",
         "@types/bun": "catalog:",
         "tsdown": "^0.16.5",
         "typescript": "catalog:",
@@ -112,10 +112,10 @@
         "@orpc/client": "catalog:",
         "@orpc/server": "catalog:",
         "@orpc/tanstack-query": "catalog:",
-        "@solana-mobile-stack/api": "workspace:*",
-        "@solana-mobile-stack/auth": "workspace:*",
-        "@solana-mobile-stack/env": "workspace:*",
-        "@solana-mobile-stack/solana-client": "workspace:*",
+        "@solana-stack-attack/api": "workspace:*",
+        "@solana-stack-attack/auth": "workspace:*",
+        "@solana-stack-attack/env": "workspace:*",
+        "@solana-stack-attack/solana-client": "workspace:*",
         "@solana-mobile/wallet-standard-mobile": "^0.4.4",
         "@solana-program/memo": "^0.10.0",
         "@solana/kit": "catalog:",
@@ -149,7 +149,7 @@
         "zod": "catalog:",
       },
       "devDependencies": {
-        "@solana-mobile-stack/config": "workspace:*",
+        "@solana-stack-attack/config": "workspace:*",
         "@tanstack/react-query-devtools": "^5.91.1",
         "@tanstack/react-router-devtools": "^1.141.1",
         "@testing-library/dom": "^10.4.0",
@@ -164,64 +164,64 @@
       },
     },
     "packages/api": {
-      "name": "@solana-mobile-stack/api",
+      "name": "@solana-stack-attack/api",
       "dependencies": {
         "@orpc/client": "catalog:",
         "@orpc/openapi": "catalog:",
         "@orpc/server": "catalog:",
         "@orpc/zod": "catalog:",
-        "@solana-mobile-stack/auth": "workspace:*",
-        "@solana-mobile-stack/db": "workspace:*",
-        "@solana-mobile-stack/env": "workspace:*",
-        "@solana-mobile-stack/solana-client": "workspace:*",
+        "@solana-stack-attack/auth": "workspace:*",
+        "@solana-stack-attack/db": "workspace:*",
+        "@solana-stack-attack/env": "workspace:*",
+        "@solana-stack-attack/solana-client": "workspace:*",
         "@solana/kit": "catalog:",
         "dotenv": "catalog:",
         "drizzle-orm": "catalog:",
         "zod": "catalog:",
       },
       "devDependencies": {
-        "@solana-mobile-stack/config": "workspace:*",
+        "@solana-stack-attack/config": "workspace:*",
         "hono": "catalog:",
         "typescript": "catalog:",
       },
     },
     "packages/auth": {
-      "name": "@solana-mobile-stack/auth",
+      "name": "@solana-stack-attack/auth",
       "dependencies": {
         "@better-auth/expo": "catalog:",
-        "@solana-mobile-stack/db": "workspace:*",
-        "@solana-mobile-stack/env": "workspace:*",
+        "@solana-stack-attack/db": "workspace:*",
+        "@solana-stack-attack/env": "workspace:*",
         "better-auth": "catalog:",
         "dotenv": "catalog:",
         "zod": "catalog:",
       },
       "devDependencies": {
-        "@solana-mobile-stack/config": "workspace:*",
+        "@solana-stack-attack/config": "workspace:*",
         "typescript": "catalog:",
       },
     },
     "packages/config": {
-      "name": "@solana-mobile-stack/config",
+      "name": "@solana-stack-attack/config",
       "version": "0.0.0",
     },
     "packages/db": {
-      "name": "@solana-mobile-stack/db",
+      "name": "@solana-stack-attack/db",
       "dependencies": {
         "@libsql/client": "catalog:",
-        "@solana-mobile-stack/env": "workspace:*",
+        "@solana-stack-attack/env": "workspace:*",
         "dotenv": "catalog:",
         "drizzle-orm": "catalog:",
         "libsql": "catalog:",
         "zod": "catalog:",
       },
       "devDependencies": {
-        "@solana-mobile-stack/config": "workspace:*",
+        "@solana-stack-attack/config": "workspace:*",
         "drizzle-kit": "^0.31.8",
         "typescript": "catalog:",
       },
     },
     "packages/env": {
-      "name": "@solana-mobile-stack/env",
+      "name": "@solana-stack-attack/env",
       "version": "0.0.0",
       "dependencies": {
         "@t3-oss/env-core": "^0.13.1",
@@ -229,20 +229,20 @@
         "zod": "catalog:",
       },
       "devDependencies": {
-        "@solana-mobile-stack/config": "workspace:*",
+        "@solana-stack-attack/config": "workspace:*",
         "@types/bun": "catalog:",
         "typescript": "catalog:",
       },
     },
     "packages/solana-client": {
-      "name": "@solana-mobile-stack/solana-client",
+      "name": "@solana-stack-attack/solana-client",
       "version": "0.0.0",
       "dependencies": {
         "@solana/kit": "catalog:",
         "@solana/kit-plugin-rpc": "catalog:",
       },
       "devDependencies": {
-        "@solana-mobile-stack/config": "workspace:*",
+        "@solana-stack-attack/config": "workspace:*",
         "@types/bun": "catalog:",
         "typescript": "catalog:",
       },
@@ -250,7 +250,7 @@
     "turbo/generators": {
       "name": "generators",
       "devDependencies": {
-        "@solana-mobile-stack/config": "workspace:*",
+        "@solana-stack-attack/config": "workspace:*",
         "@turbo/gen": "^2.8.3",
         "typescript": "catalog:",
       },
@@ -1026,17 +1026,17 @@
 
     "@sinonjs/fake-timers": ["@sinonjs/fake-timers@10.3.0", "", { "dependencies": { "@sinonjs/commons": "^3.0.0" } }, "sha512-V4BG07kuYSUkTCSBHG8G8TNhM+F19jXFWnQtzj+we8DrkpSBCee9Z3Ms8yiGer/dlmhe35/Xdgyo3/0rQKg7YA=="],
 
-    "@solana-mobile-stack/api": ["@solana-mobile-stack/api@workspace:packages/api"],
+    "@solana-stack-attack/api": ["@solana-stack-attack/api@workspace:packages/api"],
 
-    "@solana-mobile-stack/auth": ["@solana-mobile-stack/auth@workspace:packages/auth"],
+    "@solana-stack-attack/auth": ["@solana-stack-attack/auth@workspace:packages/auth"],
 
-    "@solana-mobile-stack/config": ["@solana-mobile-stack/config@workspace:packages/config"],
+    "@solana-stack-attack/config": ["@solana-stack-attack/config@workspace:packages/config"],
 
-    "@solana-mobile-stack/db": ["@solana-mobile-stack/db@workspace:packages/db"],
+    "@solana-stack-attack/db": ["@solana-stack-attack/db@workspace:packages/db"],
 
-    "@solana-mobile-stack/env": ["@solana-mobile-stack/env@workspace:packages/env"],
+    "@solana-stack-attack/env": ["@solana-stack-attack/env@workspace:packages/env"],
 
-    "@solana-mobile-stack/solana-client": ["@solana-mobile-stack/solana-client@workspace:packages/solana-client"],
+    "@solana-stack-attack/solana-client": ["@solana-stack-attack/solana-client@workspace:packages/solana-client"],
 
     "@solana-mobile/mobile-wallet-adapter-protocol": ["@solana-mobile/mobile-wallet-adapter-protocol@2.2.5", "", { "dependencies": { "@solana/codecs-strings": "^4.0.0", "@solana/wallet-standard": "^1.1.2", "@solana/wallet-standard-util": "^1.1.1", "@wallet-standard/core": "^1.0.3", "js-base64": "^3.7.5" }, "peerDependencies": { "react-native": ">0.69" } }, "sha512-kCI+0/umWm98M9g12ndpS56U6wBzq4XdhobCkDPF8qRDYX/iTU8CD+QMcalh7VgRT7GWEmySQvQdaugM0Chf0g=="],
 

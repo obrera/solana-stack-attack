@@ -1,5 +1,5 @@
-import { db } from '@solana-mobile-stack/db'
-import { todo } from '@solana-mobile-stack/db/schema/todo'
+import { db } from '@solana-stack-attack/db'
+import { todo } from '@solana-stack-attack/db/schema/todo'
 import { eq } from 'drizzle-orm'
 import z from 'zod'
 

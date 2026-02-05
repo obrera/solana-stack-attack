@@ -5,6 +5,6 @@ export default defineConfig({
   entry: './src/index.ts',
   external: [/@loris-sandbox\/.*/],
   format: 'esm',
-  noExternal: [/@solana-mobile-stack\/.*/],
+  noExternal: [/@solana-stack-attack\/.*/],
   outDir: './dist',
 })

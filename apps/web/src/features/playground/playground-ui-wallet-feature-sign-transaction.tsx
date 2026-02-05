@@ -10,8 +10,8 @@ import {
   signTransactionMessageWithSigners,
 } from '@solana/kit'
 import { useWalletAccountTransactionSigner } from '@solana/react'
-import type { SolanaClient } from '@solana-mobile-stack/solana-client'
 import { getAddMemoInstruction } from '@solana-program/memo'
+import type { SolanaClient } from '@solana-stack-attack/solana-client'
 import type { SolanaClusterId, UiWalletAccount } from '@wallet-ui/react'
 import { LucideKey } from 'lucide-react'
 import { type SyntheticEvent, useCallback, useMemo, useState } from 'react'
