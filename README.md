@@ -31,13 +31,20 @@ bun install
 
 This project uses SQLite with Drizzle ORM.
 
-1. Start the local SQLite database (optional):
-
+1. Start the local database using Docker:
+ 
+ ```bash
+ bun run db:up
+ ```
+ 
+ This starts a LibSQL (Turso) server locally on port 8080. If you prefer to run it in the background, you can add the `-d` flag: `bun run db:up -- -d`.
+ 
+ 2. Configure your environment variables. Copy `apps/server/.env.example` to `apps/server/.env`:
 ```bash
-bun run db:local
+cp apps/server/.env.example apps/server/.env
 ```
 
-2. Update your `.env` file in the `apps/server` directory with the appropriate connection details if needed.
+The default values in `.env.example` are configured to work with the local Docker database.
 
 3. Apply the schema to your database:
 
@@ -45,7 +52,15 @@ bun run db:local
 bun run db:push
 ```
 
-Then, run the development server:
+To stop the database:
+
+```bash
+bun run db:down
+```
+
+## Running the Application
+
+After setting up the database, run the development server:
 
 ```bash
 bun run dev
@@ -75,13 +90,16 @@ solana-mobile-stack/
 
 ## Available Scripts
 
-- `bun run dev`: Start all applications in development mode
 - `bun run build`: Build all applications
-- `bun run dev:web`: Start only the web application
-- `bun run dev:server`: Start only the server
 - `bun run check-types`: Check TypeScript types across all apps
-- `bun run dev:native`: Start the React Native/Expo development server
+- `bun run lint`: Run Biome formatting and linting check
+- `bun run lint:fix`: Run Biome formatting and linting check and fix
+- `bun run db:down`: Stop the local database
+- `bun run db:local`: Start the local SQLite database using Turso CLI
 - `bun run db:push`: Push schema changes to database
 - `bun run db:studio`: Open database studio UI
-- `bun run db:local`: Start the local SQLite database
-- `bun run check`: Run Biome formatting and linting
+- `bun run db:up`: Start the local database using Docker
+- `bun run dev:native`: Start the React Native/Expo development server
+- `bun run dev:server`: Start only the server
+- `bun run dev:web`: Start only the web application
+- `bun run dev`: Start all applications in development mode

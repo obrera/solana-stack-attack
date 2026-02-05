@@ -42,6 +42,8 @@
     "db:migrate": "turbo -F @solana-mobile-stack/db db:migrate",
     "db:push": "turbo -F @solana-mobile-stack/db db:push",
     "db:studio": "turbo -F @solana-mobile-stack/db db:studio",
+    "db:up": "docker compose up",
+    "db:down": "docker compose down",
     "dev": "turbo dev",
     "dev:native": "turbo -F native dev",
     "dev:server": "turbo -F server dev",

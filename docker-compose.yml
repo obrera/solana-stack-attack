@@ -1,0 +1,9 @@
+services:
+  db:
+    image: ghcr.io/tursodatabase/libsql-server:latest
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./tmp/data/libsql:/var/lib/sqld
+    environment:
+      - SQLD_NODE=primary
