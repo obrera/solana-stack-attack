@@ -40,6 +40,7 @@ services:
       - BETTER_AUTH_SECRET=${BETTER_AUTH_SECRET}
       - BETTER_AUTH_URL=https://stack-api.colmena.dev
       - CORS_ORIGIN=https://stack.colmena.dev
+      - VITE_SERVER_URL=https://stack-api.colmena.dev
     networks:
       - internal
       - dokploy-network
