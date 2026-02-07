@@ -26,7 +26,10 @@ export default function AuthScreen() {
       {mode === 'signin' ? <SignInForm /> : <SignUpForm />}
 
       <View className="mt-6 flex-row justify-center">
-        <Text className="text-muted">
+        <Text
+          className="text-muted"
+          onPress={() => setMode(mode === 'signin' ? 'signup' : 'signin')}
+        >
           {mode === 'signin'
             ? "Don't have an account? "
             : 'Already have an account? '}
