@@ -45,6 +45,24 @@ function DrawerLayout() {
         }}
       />
       <Drawer.Screen
+        name="shop"
+        options={{
+          headerTitle: 'Shop',
+          drawerLabel: ({ color, focused }) => (
+            <Text style={{ color: focused ? color : themeColorForeground }}>
+              Shop
+            </Text>
+          ),
+          drawerIcon: ({ size, color, focused }) => (
+            <Ionicons
+              name="cart"
+              size={size}
+              color={focused ? color : themeColorForeground}
+            />
+          ),
+        }}
+      />
+      <Drawer.Screen
         name="index"
         options={{
           headerTitle: 'Home',

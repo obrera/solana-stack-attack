@@ -1,10 +1,11 @@
 import { Ionicons } from '@expo/vector-icons'
+import { useRouter } from 'expo-router'
 import { Card, useThemeColor } from 'heroui-native'
 import { useRef, useState } from 'react'
 import { Animated, Pressable, Text, View } from 'react-native'
 
 import { Container } from '@/components/container'
-import { useGame } from '@/hooks/use-game'
+import { useGameContext } from '@/contexts/game-context'
 
 // Format large numbers with K, M, B suffixes
 function formatNumber(num: number): string {
@@ -21,8 +22,14 @@ function formatNumber(num: number): string {
 }
 
 export default function GameScreen() {
-  const { state, scaleAnim, floatingTexts, handleTap } = useGame()
+  const { state, scaleAnim, floatingTexts, handleTap, upgrades, canAfford } =
+    useGameContext()
   const accentColor = useThemeColor('success')
+  const mutedColor = useThemeColor('muted')
+  const router = useRouter()
+
+  // Check if player can afford any upgrade
+  const canAffordAnyUpgrade = upgrades.some((u) => canAfford(u.id))
 
   return (
     <Container className="flex-1">
@@ -35,6 +42,7 @@ export default function GameScreen() {
           </Text>
           <Text className="mt-2 text-muted text-sm">
             +{state.pointsPerTap} per tap
+            {state.pointsPerSecond > 0 && ` · +${state.pointsPerSecond}/s`}
           </Text>
         </View>
 
@@ -62,7 +70,7 @@ export default function GameScreen() {
                 key={ft.id}
                 x={ft.x}
                 y={ft.y}
-                points={state.pointsPerTap}
+                points={ft.value}
                 color={accentColor}
               />
             ))}
@@ -94,6 +102,24 @@ export default function GameScreen() {
             </View>
           </Card>
         </View>
+
+        {/* Shop Button */}
+        <Pressable
+          onPress={() => router.push('/shop')}
+          disabled={!canAffordAnyUpgrade}
+          className="mt-4 w-full rounded-lg p-4"
+          style={{
+            backgroundColor: canAffordAnyUpgrade ? accentColor : mutedColor,
+            opacity: canAffordAnyUpgrade ? 1 : 0.5,
+          }}
+        >
+          <View className="flex-row items-center justify-center gap-2">
+            <Ionicons name="cart" size={20} color="white" />
+            <Text className="font-semibold text-white">
+              {canAffordAnyUpgrade ? 'Upgrade Shop' : 'Keep Tapping...'}
+            </Text>
+          </View>
+        </Pressable>
       </View>
     </Container>
   )

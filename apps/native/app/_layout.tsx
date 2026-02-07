@@ -11,6 +11,7 @@ import { GestureHandlerRootView } from 'react-native-gesture-handler'
 import { KeyboardProvider } from 'react-native-keyboard-controller'
 
 import { AppThemeProvider } from '@/contexts/app-theme-context'
+import { GameProvider } from '@/contexts/game-context'
 import { queryClient } from '@/utils/orpc'
 
 export const unstable_settings = {
@@ -44,7 +45,9 @@ export default function Layout() {
           <KeyboardProvider>
             <AppThemeProvider>
               <HeroUINativeProvider>
-                <StackLayout />
+                <GameProvider>
+                  <StackLayout />
+                </GameProvider>
               </HeroUINativeProvider>
             </AppThemeProvider>
           </KeyboardProvider>
