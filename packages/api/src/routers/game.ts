@@ -1,9 +1,10 @@
 import { db } from '@solana-stack-attack/db'
+import { user } from '@solana-stack-attack/db/schema/auth'
 import { gameState } from '@solana-stack-attack/db/schema/game'
-import { eq } from 'drizzle-orm'
+import { desc, eq, gt, sql } from 'drizzle-orm'
 import z from 'zod'
 
-import { protectedProcedure } from '../index'
+import { protectedProcedure, publicProcedure } from '../index'
 
 const ownedUpgradeSchema = z.object({
   id: z.string(),
@@ -125,4 +126,70 @@ export const gameRouter = {
 
       return created
     }),
+
+  // Get leaderboard (top players by score)
+  getLeaderboard: publicProcedure
+    .input(
+      z
+        .object({
+          limit: z.number().int().min(1).max(100).default(10),
+        })
+        .optional(),
+    )
+    .handler(async ({ input }) => {
+      const limit = input?.limit ?? 10
+
+      const leaders = await db
+        .select({
+          rank: sql<number>`row_number() over (order by ${gameState.score} desc)`.as(
+            'rank',
+          ),
+          userId: gameState.userId,
+          name: user.name,
+          image: user.image,
+          score: gameState.score,
+          totalTaps: gameState.totalTaps,
+        })
+        .from(gameState)
+        .innerJoin(user, eq(gameState.userId, user.id))
+        .orderBy(desc(gameState.score))
+        .limit(limit)
+
+      return leaders
+    }),
+
+  // Get current user's rank
+  getMyRank: protectedProcedure.handler(async ({ context }) => {
+    const userId = context.session.user.id
+
+    // Get user's score
+    const [myState] = await db
+      .select({ score: gameState.score })
+      .from(gameState)
+      .where(eq(gameState.userId, userId))
+      .limit(1)
+
+    if (!myState) {
+      return { rank: null, score: 0, totalPlayers: 0 }
+    }
+
+    // Count how many players have higher scores
+    const [result] = await db
+      .select({ count: sql<number>`count(*)` })
+      .from(gameState)
+      .where(gt(gameState.score, myState.score))
+
+    const rank = (result?.count ?? 0) + 1
+
+    // Get total player count
+    const [total] = await db
+      .select({ count: sql<number>`count(*)` })
+      .from(gameState)
+
+    return {
+      rank,
+      score: myState.score,
+      totalPlayers: total?.count ?? 0,
+    }
+  }),
 }

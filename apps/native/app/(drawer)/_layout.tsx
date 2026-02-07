@@ -64,6 +64,24 @@ function DrawerLayout() {
         }}
       />
       <Drawer.Screen
+        name="leaderboard"
+        options={{
+          headerTitle: 'Leaderboard',
+          drawerLabel: ({ color, focused }) => (
+            <Text style={{ color: focused ? color : themeColorForeground }}>
+              Leaderboard
+            </Text>
+          ),
+          drawerIcon: ({ size, color, focused }) => (
+            <Ionicons
+              name="trophy"
+              size={size}
+              color={focused ? color : themeColorForeground}
+            />
+          ),
+        }}
+      />
+      <Drawer.Screen
         name="index"
         options={{
           headerTitle: 'Home',
