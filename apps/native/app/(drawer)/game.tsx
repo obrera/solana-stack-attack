@@ -31,8 +31,41 @@ export default function GameScreen() {
   // Check if player can afford any upgrade
   const canAffordAnyUpgrade = upgrades.some((u) => canAfford(u.id))
 
+  // Format relative time
+  const formatLastSaved = (date: Date | null): string => {
+    if (!date) return 'Not saved yet'
+    const seconds = Math.floor((Date.now() - date.getTime()) / 1000)
+    if (seconds < 5) return 'Just now'
+    if (seconds < 60) return `${seconds}s ago`
+    const minutes = Math.floor(seconds / 60)
+    if (minutes < 60) return `${minutes}m ago`
+    return date.toLocaleTimeString()
+  }
+
   return (
     <Container className="flex-1">
+      {/* Save Status Bar */}
+      <View className="flex-row items-center justify-center gap-2 py-2">
+        {state.isSaving ? (
+          <>
+            <Ionicons name="cloud-upload" size={14} color={mutedColor} />
+            <Text className="text-muted text-xs">Saving...</Text>
+          </>
+        ) : state.lastSavedAt ? (
+          <>
+            <Ionicons name="cloud-done" size={14} color={accentColor} />
+            <Text className="text-muted text-xs">
+              Saved {formatLastSaved(state.lastSavedAt)}
+            </Text>
+          </>
+        ) : (
+          <>
+            <Ionicons name="cloud-offline" size={14} color={mutedColor} />
+            <Text className="text-muted text-xs">Not saved yet</Text>
+          </>
+        )}
+      </View>
+
       <View className="flex-1 items-center justify-center p-6">
         {/* Score Display */}
         <View className="mb-8 items-center">

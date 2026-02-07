@@ -11,6 +11,8 @@ import {
 import { Animated } from 'react-native'
 
 import { type OwnedUpgrade, UPGRADES, type Upgrade } from '@/hooks/use-upgrades'
+import { authClient } from '@/lib/auth-client'
+import { client } from '@/utils/orpc'
 
 export interface FloatingText {
   id: number
@@ -25,6 +27,9 @@ export interface GameState {
   pointsPerTap: number
   pointsPerSecond: number
   level: number
+  isLoading: boolean
+  isSaving: boolean
+  lastSavedAt: Date | null
 }
 
 interface GameContextValue {
@@ -41,19 +46,134 @@ interface GameContextValue {
   getUpgradeLevel: (upgradeId: string) => number
   canAfford: (upgradeId: string) => boolean
   buyUpgrade: (upgradeId: string) => boolean
+  // Persistence
+  saveGame: () => Promise<void>
 }
 
 const GameContext = createContext<GameContextValue | null>(null)
+
+// Auto-save interval in milliseconds
+const AUTO_SAVE_INTERVAL = 10_000
 
 export function GameProvider({ children }: { children: ReactNode }) {
   const [score, setScore] = useState(0)
   const [totalTaps, setTotalTaps] = useState(0)
   const [ownedUpgrades, setOwnedUpgrades] = useState<OwnedUpgrade[]>([])
+  const [isLoading, setIsLoading] = useState(true)
+  const [isSaving, setIsSaving] = useState(false)
+  const [lastSavedAt, setLastSavedAt] = useState<Date | null>(null)
+
+  // Use refs for values we need in intervals to avoid stale closures
+  const stateRef = useRef({ score, totalTaps, ownedUpgrades })
+  const lastSavedStateRef = useRef({
+    score: 0,
+    totalTaps: 0,
+    ownedUpgrades: [] as OwnedUpgrade[],
+  })
+  const isSavingRef = useRef(false)
+
+  // Keep refs in sync
+  useEffect(() => {
+    stateRef.current = { score, totalTaps, ownedUpgrades }
+  }, [score, totalTaps, ownedUpgrades])
 
   // Animation values
   const scaleAnim = useRef(new Animated.Value(1)).current
   const [floatingTexts, setFloatingTexts] = useState<FloatingText[]>([])
   const floatingIdRef = useRef(0)
+
+  // Get session for auth check
+  const { data: session } = authClient.useSession()
+  const isAuthenticated = !!session?.user
+
+  // Load game state on mount (if authenticated)
+  useEffect(() => {
+    if (!isAuthenticated) {
+      setIsLoading(false)
+      return
+    }
+
+    const loadState = async () => {
+      try {
+        console.log('[Game] Loading state...')
+        const state = await client.game.getState()
+        console.log('[Game] Loaded state:', state)
+        if (state) {
+          setScore(state.score)
+          setTotalTaps(state.totalTaps)
+          setOwnedUpgrades(state.ownedUpgrades as OwnedUpgrade[])
+          lastSavedStateRef.current = {
+            score: state.score,
+            totalTaps: state.totalTaps,
+            ownedUpgrades: state.ownedUpgrades as OwnedUpgrade[],
+          }
+          if (state.updatedAt) {
+            setLastSavedAt(new Date(state.updatedAt))
+          }
+        }
+      } catch (error) {
+        console.error('[Game] Failed to load state:', error)
+      } finally {
+        setIsLoading(false)
+      }
+    }
+
+    loadState()
+  }, [isAuthenticated])
+
+  // Save game state (using refs to get fresh values)
+  const doSave = useCallback(async () => {
+    if (!isAuthenticated || isSavingRef.current) return
+
+    const current = stateRef.current
+    const last = lastSavedStateRef.current
+
+    // Check if state actually changed
+    if (
+      current.score === last.score &&
+      current.totalTaps === last.totalTaps &&
+      JSON.stringify(current.ownedUpgrades) ===
+        JSON.stringify(last.ownedUpgrades)
+    ) {
+      console.log('[Game] No changes to save')
+      return
+    }
+
+    console.log('[Game] Saving state...', current)
+    isSavingRef.current = true
+    setIsSaving(true)
+
+    try {
+      await client.game.saveState({
+        score: current.score,
+        totalTaps: current.totalTaps,
+        ownedUpgrades: current.ownedUpgrades,
+      })
+      lastSavedStateRef.current = { ...current }
+      setLastSavedAt(new Date())
+      console.log('[Game] Saved successfully!')
+    } catch (error) {
+      console.error('[Game] Failed to save:', error)
+    } finally {
+      isSavingRef.current = false
+      setIsSaving(false)
+    }
+  }, [isAuthenticated])
+
+  // Auto-save periodically
+  useEffect(() => {
+    if (!isAuthenticated) return
+
+    console.log('[Game] Starting auto-save interval')
+    const interval = setInterval(() => {
+      doSave()
+    }, AUTO_SAVE_INTERVAL)
+
+    return () => {
+      console.log('[Game] Clearing auto-save interval')
+      clearInterval(interval)
+    }
+  }, [isAuthenticated, doSave])
 
   // Calculate upgrade effects
   const getUpgradeLevel = useCallback(
@@ -180,6 +300,9 @@ export function GameProvider({ children }: { children: ReactNode }) {
       pointsPerTap,
       pointsPerSecond,
       level,
+      isLoading,
+      isSaving,
+      lastSavedAt,
     },
     scaleAnim,
     floatingTexts,
@@ -190,6 +313,7 @@ export function GameProvider({ children }: { children: ReactNode }) {
     getUpgradeLevel,
     canAfford,
     buyUpgrade,
+    saveGame: doSave,
   }
 
   return <GameContext.Provider value={value}>{children}</GameContext.Provider>
