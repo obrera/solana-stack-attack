@@ -21,7 +21,7 @@ export function GameUiWelcomeModal({
       <View className="flex-1 items-center justify-center bg-black/70">
         <Animated.View
           style={{ transform: [{ scale: scaleAnim }] }}
-          className="mx-6 items-center rounded-3xl border-2 border-yellow-400 bg-[#1a1a2e] p-8 shadow-lg"
+          className="mx-6 items-center rounded-3xl border-2 border-yellow-400 bg-slate-900 p-8 shadow-lg"
         >
           <Text className="mb-4 text-6xl">🎉</Text>
           <Text className="mb-2 font-bold text-3xl text-white">
@@ -42,7 +42,7 @@ export function GameUiWelcomeModal({
             onPress={handleCollect}
             className="rounded-xl bg-yellow-400 px-12 py-4 active:opacity-80"
           >
-            <Text className="font-bold text-[#1a1a2e] text-xl">Collect!</Text>
+            <Text className="font-bold text-slate-900 text-xl">Collect!</Text>
           </Pressable>
         </Animated.View>
       </View>

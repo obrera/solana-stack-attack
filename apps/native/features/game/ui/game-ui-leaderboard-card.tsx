@@ -25,13 +25,13 @@ export function GameUiLeaderboardCard({
 }: GameUiLeaderboardCardProps) {
   function getRankColor(): string {
     if (rank === 1) {
-      return '#FFD700' // Gold
+      return '#fbbf24' // amber-400 (gold)
     }
     if (rank === 2) {
-      return '#C0C0C0' // Silver
+      return '#9ca3af' // gray-400 (silver)
     }
     if (rank === 3) {
-      return '#CD7F32' // Bronze
+      return '#b45309' // amber-700 (bronze)
     }
     return mutedColor
   }
