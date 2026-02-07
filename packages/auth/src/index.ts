@@ -12,8 +12,7 @@ export const auth = betterAuth({
     schema: schema,
   }),
   trustedOrigins: [
-    env.CORS_ORIGIN,
-    'mybettertapp://',
+    ...env.CORS_ORIGINS,
     ...(env.NODE_ENV === 'development'
       ? [
           'exp://',
