@@ -10,8 +10,12 @@ const ownedUpgradeSchema = z.object({
   level: z.number().int().min(1),
 })
 
+// Offline progression constants
+const OFFLINE_RATE = 0.5 // 50% of normal auto-tapper speed
+const MAX_OFFLINE_MS = 8 * 60 * 60 * 1000 // 8 hours max
+
 export const gameRouter = {
-  // Get current user's game state
+  // Get current user's game state (calculates offline earnings on resume)
   getState: protectedProcedure.handler(async ({ context }) => {
     const userId = context.session.user.id
 
@@ -30,13 +34,45 @@ export const gameRouter = {
           score: 0,
           totalTaps: 0,
           ownedUpgrades: [],
+          pointsPerSecond: 0,
+          lastActiveAt: new Date(),
         })
         .returning()
 
-      return newState
+      return { ...newState, offlineEarnings: 0 }
     }
 
-    return state
+    // Calculate offline earnings
+    const now = Date.now()
+    const lastActive = state.lastActiveAt.getTime()
+    const elapsedMs = Math.min(now - lastActive, MAX_OFFLINE_MS)
+    const elapsedSeconds = elapsedMs / 1000
+
+    const offlineEarnings = Math.floor(
+      elapsedSeconds * state.pointsPerSecond * OFFLINE_RATE,
+    )
+
+    if (offlineEarnings > 0) {
+      // Apply offline earnings and update lastActiveAt
+      const [updated] = await db
+        .update(gameState)
+        .set({
+          score: state.score + offlineEarnings,
+          lastActiveAt: new Date(),
+        })
+        .where(eq(gameState.userId, userId))
+        .returning()
+
+      return { ...updated, offlineEarnings }
+    }
+
+    // Update lastActiveAt even if no earnings
+    await db
+      .update(gameState)
+      .set({ lastActiveAt: new Date() })
+      .where(eq(gameState.userId, userId))
+
+    return { ...state, offlineEarnings: 0 }
   }),
 
   // Save game state
@@ -46,6 +82,7 @@ export const gameRouter = {
         score: z.number().int().min(0),
         totalTaps: z.number().int().min(0),
         ownedUpgrades: z.array(ownedUpgradeSchema),
+        pointsPerSecond: z.number().int().min(0),
       }),
     )
     .handler(async ({ context, input }) => {
@@ -65,6 +102,8 @@ export const gameRouter = {
             score: input.score,
             totalTaps: input.totalTaps,
             ownedUpgrades: input.ownedUpgrades,
+            pointsPerSecond: input.pointsPerSecond,
+            lastActiveAt: new Date(),
           })
           .where(eq(gameState.userId, userId))
           .returning()
@@ -79,6 +118,8 @@ export const gameRouter = {
           score: input.score,
           totalTaps: input.totalTaps,
           ownedUpgrades: input.ownedUpgrades,
+          pointsPerSecond: input.pointsPerSecond,
+          lastActiveAt: new Date(),
         })
         .returning()
 

@@ -30,6 +30,7 @@ export interface GameState {
   isLoading: boolean
   isSaving: boolean
   lastSavedAt: Date | null
+  offlineEarnings: number | null // Set when user returns with offline earnings
 }
 
 interface GameContextValue {
@@ -48,6 +49,8 @@ interface GameContextValue {
   buyUpgrade: (upgradeId: string) => boolean
   // Persistence
   saveGame: () => Promise<void>
+  // Offline earnings
+  dismissOfflineEarnings: () => void
 }
 
 const GameContext = createContext<GameContextValue | null>(null)
@@ -62,20 +65,22 @@ export function GameProvider({ children }: { children: ReactNode }) {
   const [isLoading, setIsLoading] = useState(true)
   const [isSaving, setIsSaving] = useState(false)
   const [lastSavedAt, setLastSavedAt] = useState<Date | null>(null)
+  const [offlineEarnings, setOfflineEarnings] = useState<number | null>(null)
 
   // Use refs for values we need in intervals to avoid stale closures
-  const stateRef = useRef({ score, totalTaps, ownedUpgrades })
+  const stateRef = useRef({
+    score,
+    totalTaps,
+    ownedUpgrades,
+    pointsPerSecond: 0,
+  })
   const lastSavedStateRef = useRef({
     score: 0,
     totalTaps: 0,
     ownedUpgrades: [] as OwnedUpgrade[],
+    pointsPerSecond: 0,
   })
   const isSavingRef = useRef(false)
-
-  // Keep refs in sync
-  useEffect(() => {
-    stateRef.current = { score, totalTaps, ownedUpgrades }
-  }, [score, totalTaps, ownedUpgrades])
 
   // Animation values
   const scaleAnim = useRef(new Animated.Value(1)).current
@@ -106,9 +111,15 @@ export function GameProvider({ children }: { children: ReactNode }) {
             score: state.score,
             totalTaps: state.totalTaps,
             ownedUpgrades: state.ownedUpgrades as OwnedUpgrade[],
+            pointsPerSecond: state.pointsPerSecond ?? 0,
           }
           if (state.updatedAt) {
             setLastSavedAt(new Date(state.updatedAt))
+          }
+          // Show welcome back modal if there are offline earnings
+          if (state.offlineEarnings && state.offlineEarnings > 0) {
+            console.log('[Game] Offline earnings:', state.offlineEarnings)
+            setOfflineEarnings(state.offlineEarnings)
           }
         }
       } catch (error) {
@@ -132,6 +143,7 @@ export function GameProvider({ children }: { children: ReactNode }) {
     if (
       current.score === last.score &&
       current.totalTaps === last.totalTaps &&
+      current.pointsPerSecond === last.pointsPerSecond &&
       JSON.stringify(current.ownedUpgrades) ===
         JSON.stringify(last.ownedUpgrades)
     ) {
@@ -148,6 +160,7 @@ export function GameProvider({ children }: { children: ReactNode }) {
         score: current.score,
         totalTaps: current.totalTaps,
         ownedUpgrades: current.ownedUpgrades,
+        pointsPerSecond: current.pointsPerSecond,
       })
       lastSavedStateRef.current = { ...current }
       setLastSavedAt(new Date())
@@ -216,6 +229,11 @@ export function GameProvider({ children }: { children: ReactNode }) {
     }
     return total
   })()
+
+  // Keep refs in sync (after pointsPerSecond is calculated)
+  useEffect(() => {
+    stateRef.current = { score, totalTaps, ownedUpgrades, pointsPerSecond }
+  }, [score, totalTaps, ownedUpgrades, pointsPerSecond])
 
   // Auto-tapper interval
   useEffect(() => {
@@ -293,6 +311,10 @@ export function GameProvider({ children }: { children: ReactNode }) {
 
   const level = Math.floor(totalTaps / 100) + 1
 
+  const dismissOfflineEarnings = useCallback(() => {
+    setOfflineEarnings(null)
+  }, [])
+
   const value: GameContextValue = {
     state: {
       score,
@@ -303,6 +325,7 @@ export function GameProvider({ children }: { children: ReactNode }) {
       isLoading,
       isSaving,
       lastSavedAt,
+      offlineEarnings,
     },
     scaleAnim,
     floatingTexts,
@@ -314,6 +337,7 @@ export function GameProvider({ children }: { children: ReactNode }) {
     canAfford,
     buyUpgrade,
     saveGame: doSave,
+    dismissOfflineEarnings,
   }
 
   return <GameContext.Provider value={value}>{children}</GameContext.Provider>
