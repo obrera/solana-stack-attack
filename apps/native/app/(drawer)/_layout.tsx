@@ -4,15 +4,14 @@ import { Drawer } from 'expo-router/drawer'
 import { useThemeColor } from 'heroui-native'
 import { useCallback } from 'react'
 import { Pressable, Text } from 'react-native'
-
-import { ThemeToggle } from '@/components/theme-toggle'
-import { AuthGuard } from '@/features/auth'
+import { AuthFeatureGuard } from '@/features/auth/auth-feature-guard'
+import { UiThemeToggle } from '@/features/ui/ui/ui-theme-toggle'
 
 function DrawerLayout() {
   const themeColorForeground = useThemeColor('foreground')
   const themeColorBackground = useThemeColor('background')
 
-  const renderThemeToggle = useCallback(() => <ThemeToggle />, [])
+  const renderThemeToggle = useCallback(() => <UiThemeToggle />, [])
 
   return (
     <Drawer
@@ -188,8 +187,8 @@ function DrawerLayout() {
 
 export default function ProtectedDrawerLayout() {
   return (
-    <AuthGuard>
+    <AuthFeatureGuard>
       <DrawerLayout />
-    </AuthGuard>
+    </AuthFeatureGuard>
   )
 }

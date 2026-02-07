@@ -1,7 +1,6 @@
 import type { RouterClient } from '@orpc/server'
-
+import { gameRouter } from '../features/game'
 import { protectedProcedure, publicProcedure } from '../index'
-import { gameRouter } from './game'
 import { solanaRouter } from './solana'
 import { todoRouter } from './todo'
 

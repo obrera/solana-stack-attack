@@ -2,11 +2,10 @@ import { Ionicons } from '@expo/vector-icons'
 import { useQuery } from '@tanstack/react-query'
 import { Card, Chip, useThemeColor } from 'heroui-native'
 import { Text, View } from 'react-native'
-
-import { Container } from '@/components/container'
-import { SolanaConnect } from '@/components/solana-connect'
-import { UserMenu } from '@/features/auth'
-import { orpc } from '@/utils/orpc'
+import { AuthUiUserMenu } from '@/features/auth/ui/auth-ui-user-menu'
+import { orpc } from '@/features/core/util/core-orpc'
+import { SolanaUiConnect } from '@/features/solana/ui/solana-ui-connect'
+import { UiContainer } from '@/features/ui/ui/ui-container'
 
 export default function Home() {
   const healthCheck = useQuery(orpc.healthCheck.queryOptions())
@@ -19,7 +18,7 @@ export default function Home() {
   const dangerColor = useThemeColor('danger')
 
   return (
-    <Container className="space-y-6 p-6">
+    <UiContainer className="space-y-6 p-6">
       <View className="mb-6 py-4">
         <Text className="mb-2 font-bold text-4xl text-foreground">
           Stack Attack
@@ -27,10 +26,10 @@ export default function Home() {
       </View>
 
       <View className="mb-6">
-        <SolanaConnect />
+        <SolanaUiConnect />
       </View>
 
-      <UserMenu />
+      <AuthUiUserMenu />
 
       <Card variant="secondary" className="p-6">
         <View className="mb-4 flex-row items-center justify-between">
@@ -84,6 +83,6 @@ export default function Home() {
           {privateData.data?.message || 'Loading...'}
         </Card.Description>
       </Card>
-    </Container>
+    </UiContainer>
   )
 }

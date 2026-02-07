@@ -1,59 +1,24 @@
-import '@/polyfills'
 import '@/global.css'
-import { QueryClientProvider } from '@tanstack/react-query'
-import {
-  createSolanaDevnet,
-  MobileWalletProvider,
-} from '@wallet-ui/react-native-kit'
-import { Stack } from 'expo-router'
-import { HeroUINativeProvider } from 'heroui-native'
-import { GestureHandlerRootView } from 'react-native-gesture-handler'
-import { KeyboardProvider } from 'react-native-keyboard-controller'
 
-import { AppThemeProvider } from '@/contexts/app-theme-context'
-import { GameProvider } from '@/contexts/game-context'
-import { queryClient } from '@/utils/orpc'
+import { Stack } from 'expo-router'
+
+import { CoreProvider } from '@/features/core/data-access/core-provider'
 
 export const unstable_settings = {
   initialRouteName: '(drawer)',
 }
 
-const cluster = createSolanaDevnet()
-const identity = {
-  name: 'Solana Mobile Stack',
-  uri: 'https://solana.com',
-  icon: 'favicon.png',
-}
-
-function StackLayout() {
-  return (
-    <Stack screenOptions={{}}>
-      <Stack.Screen name="(drawer)" options={{ headerShown: false }} />
-      <Stack.Screen name="auth" options={{ headerShown: false }} />
-      <Stack.Screen
-        name="modal"
-        options={{ title: 'Modal', presentation: 'modal' }}
-      />
-    </Stack>
-  )
-}
-
 export default function Layout() {
   return (
-    <QueryClientProvider client={queryClient}>
-      <MobileWalletProvider cluster={cluster} identity={identity}>
-        <GestureHandlerRootView style={{ flex: 1 }}>
-          <KeyboardProvider>
-            <AppThemeProvider>
-              <HeroUINativeProvider>
-                <GameProvider>
-                  <StackLayout />
-                </GameProvider>
-              </HeroUINativeProvider>
-            </AppThemeProvider>
-          </KeyboardProvider>
-        </GestureHandlerRootView>
-      </MobileWalletProvider>
-    </QueryClientProvider>
+    <CoreProvider>
+      <Stack screenOptions={{}}>
+        <Stack.Screen name="(drawer)" options={{ headerShown: false }} />
+        <Stack.Screen name="auth" options={{ headerShown: false }} />
+        <Stack.Screen
+          name="modal"
+          options={{ title: 'Modal', presentation: 'modal' }}
+        />
+      </Stack>
+    </CoreProvider>
   )
 }
