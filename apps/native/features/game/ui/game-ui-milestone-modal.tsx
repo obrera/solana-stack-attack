@@ -1,5 +1,4 @@
 import { Ionicons } from '@expo/vector-icons'
-import { useThemeColor } from 'heroui-native'
 import { useEffect, useRef } from 'react'
 import { Animated, Modal, Pressable, Text, View } from 'react-native'
 
@@ -14,9 +13,6 @@ export function GameUiMilestoneModal({
   milestone,
   onDismiss,
 }: GameUiMilestoneModalProps) {
-  const warningColor = useThemeColor('warning')
-  const backgroundColor = useThemeColor('background')
-
   const scaleAnim = useRef(new Animated.Value(0)).current
   const opacityAnim = useRef(new Animated.Value(0)).current
 
@@ -65,50 +61,41 @@ export function GameUiMilestoneModal({
   return (
     <Modal transparent visible={!!milestone} animationType="none">
       <Animated.View
-        className="flex-1 items-center justify-center bg-black/60"
+        className="flex-1 items-center justify-center bg-black/70"
         style={{ opacity: opacityAnim }}
       >
         <Pressable className="absolute inset-0" onPress={handleDismiss} />
         <Animated.View
-          className="mx-8 items-center rounded-2xl p-8"
-          style={{
-            backgroundColor,
-            transform: [{ scale: scaleAnim }],
-          }}
+          className="mx-6 items-center rounded-3xl border-2 border-yellow-400 bg-slate-900 p-8 shadow-lg"
+          style={{ transform: [{ scale: scaleAnim }] }}
         >
           {/* Trophy Icon */}
-          <View
-            className="mb-4 h-20 w-20 items-center justify-center rounded-full"
-            style={{ backgroundColor: `${warningColor}20` }}
-          >
+          <View className="mb-4 h-20 w-20 items-center justify-center rounded-full bg-yellow-400/20">
             <Ionicons
               name={milestone.icon as keyof typeof Ionicons.glyphMap}
               size={40}
-              color={warningColor}
+              color="#facc15" // yellow-400
             />
           </View>
 
           {/* Achievement Text */}
-          <Text className="mb-1 font-bold text-2xl text-foreground">
-            🎉 Achievement Unlocked!
+          <Text className="mb-4 text-6xl">🎉</Text>
+          <Text className="mb-2 font-bold text-2xl text-white">
+            Achievement Unlocked!
           </Text>
-          <Text
-            className="mb-2 font-semibold text-xl"
-            style={{ color: warningColor }}
-          >
+          <Text className="mb-2 font-semibold text-xl text-yellow-400">
             {milestone.name}
           </Text>
-          <Text className="mb-6 text-center text-muted">
+          <Text className="mb-8 text-center text-base text-gray-400">
             {milestone.description}
           </Text>
 
           {/* Dismiss Button */}
           <Pressable
             onPress={handleDismiss}
-            className="rounded-lg px-8 py-3"
-            style={{ backgroundColor: warningColor }}
+            className="rounded-xl bg-yellow-400 px-12 py-4 active:opacity-80"
           >
-            <Text className="font-semibold text-white">Awesome!</Text>
+            <Text className="font-bold text-slate-900 text-xl">Awesome!</Text>
           </Pressable>
         </Animated.View>
       </Animated.View>
