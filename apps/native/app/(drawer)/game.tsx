@@ -5,6 +5,7 @@ import { useRef, useState } from 'react'
 import { Animated, Pressable, Text, View } from 'react-native'
 
 import { Container } from '@/components/container'
+import { WelcomeBackModal } from '@/components/welcome-back-modal'
 import { useGameContext } from '@/contexts/game-context'
 
 // Format large numbers with K, M, B suffixes
@@ -22,8 +23,15 @@ function formatNumber(num: number): string {
 }
 
 export default function GameScreen() {
-  const { state, scaleAnim, floatingTexts, handleTap, upgrades, canAfford } =
-    useGameContext()
+  const {
+    state,
+    scaleAnim,
+    floatingTexts,
+    handleTap,
+    upgrades,
+    canAfford,
+    dismissOfflineEarnings,
+  } = useGameContext()
   const accentColor = useThemeColor('success')
   const mutedColor = useThemeColor('muted')
   const router = useRouter()
@@ -44,6 +52,14 @@ export default function GameScreen() {
 
   return (
     <Container className="flex-1">
+      {/* Welcome Back Modal */}
+      {state.offlineEarnings && state.offlineEarnings > 0 && (
+        <WelcomeBackModal
+          earnings={state.offlineEarnings}
+          onDismiss={dismissOfflineEarnings}
+        />
+      )}
+
       {/* Save Status Bar */}
       <View className="flex-row items-center justify-center gap-2 py-2">
         {state.isSaving ? (
