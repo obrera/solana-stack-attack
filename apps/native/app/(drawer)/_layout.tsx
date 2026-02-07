@@ -6,6 +6,7 @@ import { useCallback } from 'react'
 import { Pressable, Text } from 'react-native'
 
 import { ThemeToggle } from '@/components/theme-toggle'
+import { AuthGuard } from '@/features/auth'
 
 function DrawerLayout() {
   const themeColorForeground = useThemeColor('foreground')
@@ -167,4 +168,10 @@ function DrawerLayout() {
   )
 }
 
-export default DrawerLayout
+export default function ProtectedDrawerLayout() {
+  return (
+    <AuthGuard>
+      <DrawerLayout />
+    </AuthGuard>
+  )
+}

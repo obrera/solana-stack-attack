@@ -10,10 +10,11 @@ import {
 import { useState } from 'react'
 import { Text, View } from 'react-native'
 
-import { authClient } from '@/lib/auth-client'
 import { queryClient } from '@/utils/orpc'
 
-function SignIn() {
+import { authClient } from '../auth-client'
+
+export function SignInForm() {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [isLoading, setIsLoading] = useState(false)
@@ -86,5 +87,3 @@ function SignIn() {
     </Surface>
   )
 }
-
-export { SignIn }
