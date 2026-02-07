@@ -3,6 +3,8 @@ services:
     image: ghcr.io/tursodatabase/libsql-server:latest
     volumes:
       - sqld-data:/var/lib/sqld
+    ports:
+      - 8080:8080
     networks:
       - internal
 
