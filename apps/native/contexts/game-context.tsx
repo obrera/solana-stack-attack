@@ -12,6 +12,7 @@ import { Animated } from 'react-native'
 
 import { type OwnedUpgrade, UPGRADES, type Upgrade } from '@/hooks/use-upgrades'
 import { authClient } from '@/lib/auth-client'
+import { checkMilestones, type Milestone } from '@/lib/milestones'
 import { client } from '@/utils/orpc'
 
 export interface FloatingText {
@@ -31,6 +32,8 @@ export interface GameState {
   isSaving: boolean
   lastSavedAt: Date | null
   offlineEarnings: number | null // Set when user returns with offline earnings
+  achievedMilestones: string[]
+  pendingCelebration: Milestone | null
 }
 
 interface GameContextValue {
@@ -51,6 +54,9 @@ interface GameContextValue {
   saveGame: () => Promise<void>
   // Offline earnings
   dismissOfflineEarnings: () => void
+  // Milestones
+  milestones: Milestone[]
+  dismissCelebration: () => void
 }
 
 const GameContext = createContext<GameContextValue | null>(null)
@@ -66,6 +72,11 @@ export function GameProvider({ children }: { children: ReactNode }) {
   const [isSaving, setIsSaving] = useState(false)
   const [lastSavedAt, setLastSavedAt] = useState<Date | null>(null)
   const [offlineEarnings, setOfflineEarnings] = useState<number | null>(null)
+  const [achievedMilestones, setAchievedMilestones] = useState<string[]>([])
+  const [pendingCelebration, setPendingCelebration] =
+    useState<Milestone | null>(null)
+  const celebrationQueue = useRef<Milestone[]>([])
+  const [milestones, setMilestones] = useState<Milestone[]>([])
 
   // Use refs for values we need in intervals to avoid stale closures
   const stateRef = useRef({
@@ -73,12 +84,14 @@ export function GameProvider({ children }: { children: ReactNode }) {
     totalTaps,
     ownedUpgrades,
     pointsPerSecond: 0,
+    achievedMilestones: [] as string[],
   })
   const lastSavedStateRef = useRef({
     score: 0,
     totalTaps: 0,
     ownedUpgrades: [] as OwnedUpgrade[],
     pointsPerSecond: 0,
+    achievedMilestones: [] as string[],
   })
   const isSavingRef = useRef(false)
 
@@ -90,6 +103,19 @@ export function GameProvider({ children }: { children: ReactNode }) {
   // Get session for auth check
   const { data: session } = authClient.useSession()
   const isAuthenticated = !!session?.user
+
+  // Fetch milestones on mount
+  useEffect(() => {
+    const fetchMilestones = async () => {
+      try {
+        const data = await client.game.getMilestones()
+        setMilestones(data)
+      } catch (error) {
+        console.error('[Game] Failed to fetch milestones:', error)
+      }
+    }
+    fetchMilestones()
+  }, [])
 
   // Load game state on mount (if authenticated)
   useEffect(() => {
@@ -107,11 +133,13 @@ export function GameProvider({ children }: { children: ReactNode }) {
           setScore(state.score)
           setTotalTaps(state.totalTaps)
           setOwnedUpgrades(state.ownedUpgrades as OwnedUpgrade[])
+          setAchievedMilestones((state.achievedMilestones as string[]) ?? [])
           lastSavedStateRef.current = {
             score: state.score,
             totalTaps: state.totalTaps,
             ownedUpgrades: state.ownedUpgrades as OwnedUpgrade[],
             pointsPerSecond: state.pointsPerSecond ?? 0,
+            achievedMilestones: (state.achievedMilestones as string[]) ?? [],
           }
           if (state.updatedAt) {
             setLastSavedAt(new Date(state.updatedAt))
@@ -145,7 +173,9 @@ export function GameProvider({ children }: { children: ReactNode }) {
       current.totalTaps === last.totalTaps &&
       current.pointsPerSecond === last.pointsPerSecond &&
       JSON.stringify(current.ownedUpgrades) ===
-        JSON.stringify(last.ownedUpgrades)
+        JSON.stringify(last.ownedUpgrades) &&
+      JSON.stringify(current.achievedMilestones) ===
+        JSON.stringify(last.achievedMilestones)
     ) {
       console.log('[Game] No changes to save')
       return
@@ -161,6 +191,7 @@ export function GameProvider({ children }: { children: ReactNode }) {
         totalTaps: current.totalTaps,
         ownedUpgrades: current.ownedUpgrades,
         pointsPerSecond: current.pointsPerSecond,
+        achievedMilestones: current.achievedMilestones,
       })
       lastSavedStateRef.current = { ...current }
       setLastSavedAt(new Date())
@@ -232,8 +263,73 @@ export function GameProvider({ children }: { children: ReactNode }) {
 
   // Keep refs in sync (after pointsPerSecond is calculated)
   useEffect(() => {
-    stateRef.current = { score, totalTaps, ownedUpgrades, pointsPerSecond }
-  }, [score, totalTaps, ownedUpgrades, pointsPerSecond])
+    stateRef.current = {
+      score,
+      totalTaps,
+      ownedUpgrades,
+      pointsPerSecond,
+      achievedMilestones,
+    }
+  }, [score, totalTaps, ownedUpgrades, pointsPerSecond, achievedMilestones])
+
+  // Calculate total upgrade levels for milestone checking
+  const totalUpgradeLevels = ownedUpgrades.reduce((sum, u) => sum + u.level, 0)
+
+  // Check for new milestones
+  useEffect(() => {
+    if (isLoading) {
+      return
+    }
+
+    const newlyAchieved = checkMilestones(
+      score,
+      totalTaps,
+      totalUpgradeLevels,
+      achievedMilestones,
+      milestones,
+    )
+
+    if (newlyAchieved.length > 0) {
+      // Add to achieved list
+      setAchievedMilestones((prev) => [
+        ...prev,
+        ...newlyAchieved.map((m) => m.id),
+      ])
+
+      // Queue celebrations
+      celebrationQueue.current.push(...newlyAchieved)
+
+      // Show first celebration if none pending
+      if (!pendingCelebration && celebrationQueue.current.length > 0) {
+        const next = celebrationQueue.current.shift()
+        if (next) {
+          setPendingCelebration(next)
+          Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success)
+        }
+      }
+    }
+  }, [
+    score,
+    totalTaps,
+    totalUpgradeLevels,
+    achievedMilestones,
+    isLoading,
+    pendingCelebration,
+    milestones,
+  ])
+
+  // Dismiss celebration and show next in queue
+  const dismissCelebration = useCallback(() => {
+    if (celebrationQueue.current.length > 0) {
+      const next = celebrationQueue.current.shift()
+      if (next) {
+        setPendingCelebration(next)
+        Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success)
+        return
+      }
+    }
+    setPendingCelebration(null)
+  }, [])
 
   // Auto-tapper interval
   useEffect(() => {
@@ -326,6 +422,8 @@ export function GameProvider({ children }: { children: ReactNode }) {
       isSaving,
       lastSavedAt,
       offlineEarnings,
+      achievedMilestones,
+      pendingCelebration,
     },
     scaleAnim,
     floatingTexts,
@@ -338,6 +436,8 @@ export function GameProvider({ children }: { children: ReactNode }) {
     buyUpgrade,
     saveGame: doSave,
     dismissOfflineEarnings,
+    milestones,
+    dismissCelebration,
   }
 
   return <GameContext.Provider value={value}>{children}</GameContext.Provider>

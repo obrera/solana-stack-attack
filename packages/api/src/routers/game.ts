@@ -5,6 +5,7 @@ import { desc, eq, gt, sql } from 'drizzle-orm'
 import z from 'zod'
 
 import { protectedProcedure, publicProcedure } from '../index'
+import { MILESTONES } from '../lib/milestones'
 
 const ownedUpgradeSchema = z.object({
   id: z.string(),
@@ -16,6 +17,11 @@ const OFFLINE_RATE = 0.5 // 50% of normal auto-tapper speed
 const MAX_OFFLINE_MS = 8 * 60 * 60 * 1000 // 8 hours max
 
 export const gameRouter = {
+  // Get all milestone definitions
+  getMilestones: publicProcedure.handler(async () => {
+    return MILESTONES
+  }),
+
   // Get current user's game state (calculates offline earnings on resume)
   getState: protectedProcedure.handler(async ({ context }) => {
     const userId = context.session.user.id
@@ -84,6 +90,7 @@ export const gameRouter = {
         totalTaps: z.number().int().min(0),
         ownedUpgrades: z.array(ownedUpgradeSchema),
         pointsPerSecond: z.number().int().min(0),
+        achievedMilestones: z.array(z.string()).optional(),
       }),
     )
     .handler(async ({ context, input }) => {
@@ -104,6 +111,7 @@ export const gameRouter = {
             totalTaps: input.totalTaps,
             ownedUpgrades: input.ownedUpgrades,
             pointsPerSecond: input.pointsPerSecond,
+            achievedMilestones: input.achievedMilestones ?? [],
             lastActiveAt: new Date(),
           })
           .where(eq(gameState.userId, userId))
@@ -120,6 +128,7 @@ export const gameRouter = {
           totalTaps: input.totalTaps,
           ownedUpgrades: input.ownedUpgrades,
           pointsPerSecond: input.pointsPerSecond,
+          achievedMilestones: input.achievedMilestones ?? [],
           lastActiveAt: new Date(),
         })
         .returning()

@@ -18,6 +18,11 @@ export const gameState = sqliteTable(
       .$type<Array<{ id: string; level: number }>>()
       .default([])
       .notNull(),
+    // Store achieved milestone IDs
+    achievedMilestones: text('achieved_milestones', { mode: 'json' })
+      .$type<string[]>()
+      .default([])
+      .notNull(),
     // Points earned per second from auto-tappers (cached for offline calc)
     pointsPerSecond: integer('points_per_second').default(0).notNull(),
     // Last time user was active (for offline earnings calculation)

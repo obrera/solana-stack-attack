@@ -5,6 +5,7 @@ import { useRef, useState } from 'react'
 import { Animated, Pressable, Text, View } from 'react-native'
 
 import { Container } from '@/components/container'
+import { MilestoneModal } from '@/components/milestone-modal'
 import { WelcomeBackModal } from '@/components/welcome-back-modal'
 import { useGameContext } from '@/contexts/game-context'
 import { formatNumber } from '@/lib/format-number'
@@ -18,6 +19,7 @@ export default function GameScreen() {
     upgrades,
     canAfford,
     dismissOfflineEarnings,
+    dismissCelebration,
   } = useGameContext()
   const accentColor = useThemeColor('success')
   const mutedColor = useThemeColor('muted')
@@ -46,6 +48,12 @@ export default function GameScreen() {
           onDismiss={dismissOfflineEarnings}
         />
       )}
+
+      {/* Milestone Celebration Modal */}
+      <MilestoneModal
+        milestone={state.pendingCelebration}
+        onDismiss={dismissCelebration}
+      />
 
       {/* Save Status Bar */}
       <View className="flex-row items-center justify-center gap-2 py-2">
