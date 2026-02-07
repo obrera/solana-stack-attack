@@ -21,6 +21,9 @@ export interface OwnedUpgrade {
 }
 
 // Available upgrades in the game
+// Rebalanced for better idle vs active tradeoff
+// Auto-tappers: ~25-60s break-even (was 100-500s)
+// Tap upgrades: steeper scaling to prevent over-stacking
 export const UPGRADES: Upgrade[] = [
   {
     id: 'double_tap',
@@ -28,17 +31,17 @@ export const UPGRADES: Upgrade[] = [
     description: '+1 point per tap',
     icon: 'finger-print',
     baseCost: 50,
-    costMultiplier: 1.5,
+    costMultiplier: 2.0, // was 1.5 — steeper scaling
     effect: { type: 'tap_multiplier', value: 1 },
   },
   {
     id: 'auto_clicker_1',
     name: 'Mini Bot',
-    description: '+1 point per second',
+    description: '+2 points per second',
     icon: 'hardware-chip',
-    baseCost: 100,
-    costMultiplier: 1.8,
-    effect: { type: 'auto_tapper', value: 1 },
+    baseCost: 50, // was 100
+    costMultiplier: 1.5, // was 1.8 — 25s break-even
+    effect: { type: 'auto_tapper', value: 2 }, // was 1
   },
   {
     id: 'power_tap',
@@ -46,17 +49,17 @@ export const UPGRADES: Upgrade[] = [
     description: '+5 points per tap',
     icon: 'flash',
     baseCost: 500,
-    costMultiplier: 2.0,
+    costMultiplier: 2.2, // was 2.0 — steeper scaling
     effect: { type: 'tap_multiplier', value: 5 },
   },
   {
     id: 'auto_clicker_2',
     name: 'Turbo Bot',
-    description: '+10 points per second',
+    description: '+20 points per second',
     icon: 'rocket',
-    baseCost: 2000,
-    costMultiplier: 2.2,
-    effect: { type: 'auto_tapper', value: 10 },
+    baseCost: 800, // was 2000
+    costMultiplier: 1.8, // was 2.2 — 40s break-even
+    effect: { type: 'auto_tapper', value: 20 }, // was 10
   },
   {
     id: 'mega_tap',
@@ -70,11 +73,11 @@ export const UPGRADES: Upgrade[] = [
   {
     id: 'auto_clicker_3',
     name: 'Quantum Bot',
-    description: '+100 points per second',
+    description: '+250 points per second',
     icon: 'planet',
-    baseCost: 50000,
-    costMultiplier: 3.0,
-    effect: { type: 'auto_tapper', value: 100 },
+    baseCost: 15000, // was 50000
+    costMultiplier: 2.0, // was 3.0 — 60s break-even, game-changer!
+    effect: { type: 'auto_tapper', value: 250 }, // was 100
   },
 ]
 
