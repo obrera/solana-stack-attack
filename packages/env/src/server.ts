@@ -8,7 +8,10 @@ export const env = createEnv({
     DATABASE_AUTH_TOKEN: z.string().min(1),
     BETTER_AUTH_SECRET: z.string().min(32),
     BETTER_AUTH_URL: z.url(),
-    CORS_ORIGIN: z.url(),
+    CORS_ORIGINS: z
+      .string()
+      .transform((val) => val.split(',').map((url) => url.trim()))
+      .pipe(z.array(z.url())),
     SOLANA_RPC_URL: z.string().url().default('https://api.devnet.solana.com'),
     NODE_ENV: z
       .enum(['development', 'production', 'test'])
