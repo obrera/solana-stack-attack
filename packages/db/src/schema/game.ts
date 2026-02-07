@@ -18,6 +18,12 @@ export const gameState = sqliteTable(
       .$type<Array<{ id: string; level: number }>>()
       .default([])
       .notNull(),
+    // Points earned per second from auto-tappers (cached for offline calc)
+    pointsPerSecond: integer('points_per_second').default(0).notNull(),
+    // Last time user was active (for offline earnings calculation)
+    lastActiveAt: integer('last_active_at', { mode: 'timestamp_ms' })
+      .default(sql`(cast(unixepoch('subsecond') * 1000 as integer))`)
+      .notNull(),
     createdAt: integer('created_at', { mode: 'timestamp_ms' })
       .default(sql`(cast(unixepoch('subsecond') * 1000 as integer))`)
       .notNull(),
