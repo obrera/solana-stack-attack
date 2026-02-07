@@ -6,6 +6,7 @@ import { Pressable, ScrollView, Text, View } from 'react-native'
 import { Container } from '@/components/container'
 import { useGameContext } from '@/contexts/game-context'
 import type { Upgrade } from '@/hooks/use-upgrades'
+import { formatNumber } from '@/lib/format-number'
 
 export default function ShopScreen() {
   const accentColor = useThemeColor('success')
@@ -178,17 +179,4 @@ function UpgradeCard({
       </View>
     </Card>
   )
-}
-
-function formatNumber(num: number): string {
-  if (num >= 1_000_000_000) {
-    return `${(num / 1_000_000_000).toFixed(1)}B`
-  }
-  if (num >= 1_000_000) {
-    return `${(num / 1_000_000).toFixed(1)}M`
-  }
-  if (num >= 1_000) {
-    return `${(num / 1_000).toFixed(1)}K`
-  }
-  return num.toString()
 }

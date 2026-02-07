@@ -7,20 +7,7 @@ import { Animated, Pressable, Text, View } from 'react-native'
 import { Container } from '@/components/container'
 import { WelcomeBackModal } from '@/components/welcome-back-modal'
 import { useGameContext } from '@/contexts/game-context'
-
-// Format large numbers with K, M, B suffixes
-function formatNumber(num: number): string {
-  if (num >= 1_000_000_000) {
-    return `${(num / 1_000_000_000).toFixed(1)}B`
-  }
-  if (num >= 1_000_000) {
-    return `${(num / 1_000_000).toFixed(1)}M`
-  }
-  if (num >= 1_000) {
-    return `${(num / 1_000).toFixed(1)}K`
-  }
-  return num.toString()
-}
+import { formatNumber } from '@/lib/format-number'
 
 export default function GameScreen() {
   const {
@@ -152,23 +139,40 @@ export default function GameScreen() {
           </Card>
         </View>
 
-        {/* Shop Button */}
-        <Pressable
-          onPress={() => router.push('/shop')}
-          disabled={!canAffordAnyUpgrade}
-          className="mt-4 w-full rounded-lg p-4"
-          style={{
-            backgroundColor: canAffordAnyUpgrade ? accentColor : mutedColor,
-            opacity: canAffordAnyUpgrade ? 1 : 0.5,
-          }}
-        >
-          <View className="flex-row items-center justify-center gap-2">
-            <Ionicons name="cart" size={20} color="white" />
-            <Text className="font-semibold text-white">
-              {canAffordAnyUpgrade ? 'Upgrade Shop' : 'Keep Tapping...'}
-            </Text>
-          </View>
-        </Pressable>
+        {/* Action Buttons */}
+        <View className="mt-4 w-full flex-row gap-3">
+          {/* Shop Button */}
+          <Pressable
+            onPress={() => router.push('/shop')}
+            disabled={!canAffordAnyUpgrade}
+            className="flex-1 rounded-lg p-4"
+            style={{
+              backgroundColor: canAffordAnyUpgrade ? accentColor : mutedColor,
+              opacity: canAffordAnyUpgrade ? 1 : 0.5,
+            }}
+          >
+            <View className="flex-row items-center justify-center gap-2">
+              <Ionicons name="cart" size={20} color="white" />
+              <Text className="font-semibold text-white">
+                {canAffordAnyUpgrade ? 'Shop' : 'Tap...'}
+              </Text>
+            </View>
+          </Pressable>
+
+          {/* Leaderboard Button */}
+          <Pressable
+            onPress={() => router.push('/leaderboard')}
+            className="flex-1 rounded-lg border-2 p-4"
+            style={{ borderColor: accentColor }}
+          >
+            <View className="flex-row items-center justify-center gap-2">
+              <Ionicons name="trophy" size={20} color={accentColor} />
+              <Text style={{ color: accentColor }} className="font-semibold">
+                Ranks
+              </Text>
+            </View>
+          </Pressable>
+        </View>
       </View>
     </Container>
   )
