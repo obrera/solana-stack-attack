@@ -1,5 +1,5 @@
 import * as Haptics from 'expo-haptics'
-import { useEffect, useRef } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { Animated } from 'react-native'
 
 interface UseGameAnimationOptions {
@@ -13,6 +13,8 @@ export function useGameAnimation({
 }: UseGameAnimationOptions) {
   const scaleAnim = useRef(new Animated.Value(0)).current
   const coinsAnim = useRef(new Animated.Value(0)).current
+  const [isReady, setIsReady] = useState(false)
+  const [displayValue, setDisplayValue] = useState(0)
 
   useEffect(() => {
     // Haptic feedback on show
@@ -26,12 +28,26 @@ export function useGameAnimation({
       friction: 7,
     }).start()
 
-    // Animate coins counting up
-    Animated.timing(coinsAnim, {
-      toValue: earnings,
-      duration: 1500,
-      useNativeDriver: false,
-    }).start()
+    // Listen to animated value changes
+    const listenerId = coinsAnim.addListener(({ value }) => {
+      setDisplayValue(Math.floor(value))
+    })
+
+    // Small delay before starting count animation to avoid showing 0
+    const timer = setTimeout(() => {
+      setIsReady(true)
+      // Animate coins counting up
+      Animated.timing(coinsAnim, {
+        toValue: earnings,
+        duration: 1500,
+        useNativeDriver: false,
+      }).start()
+    }, 100)
+
+    return () => {
+      clearTimeout(timer)
+      coinsAnim.removeListener(listenerId)
+    }
   }, [earnings, scaleAnim, coinsAnim])
 
   const handleCollect = () => {
@@ -39,14 +55,10 @@ export function useGameAnimation({
     onCollect()
   }
 
-  const animatedEarnings = coinsAnim.interpolate({
-    inputRange: [0, earnings],
-    outputRange: ['0', earnings.toLocaleString()],
-  })
-
   return {
     scaleAnim,
-    animatedEarnings,
+    displayValue,
+    isReady,
     handleCollect,
   }
 }

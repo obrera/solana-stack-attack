@@ -1,4 +1,11 @@
-import { Animated, Modal, Pressable, Text, View } from 'react-native'
+import {
+  ActivityIndicator,
+  Animated,
+  Modal,
+  Pressable,
+  Text,
+  View,
+} from 'react-native'
 
 import { useGameAnimation } from '../data-access/use-game-animation'
 
@@ -11,7 +18,7 @@ export function GameUiWelcomeModal({
   earnings,
   onDismiss,
 }: GameUiWelcomeModalProps) {
-  const { scaleAnim, animatedEarnings, handleCollect } = useGameAnimation({
+  const { scaleAnim, displayValue, isReady, handleCollect } = useGameAnimation({
     earnings,
     onCollect: onDismiss,
   })
@@ -32,10 +39,16 @@ export function GameUiWelcomeModal({
           </Text>
 
           <View className="mb-8 flex-row items-baseline">
-            <Animated.Text className="font-bold text-5xl text-yellow-400">
-              {animatedEarnings}
-            </Animated.Text>
-            <Text className="ml-2 text-2xl text-yellow-400">coins</Text>
+            {isReady ? (
+              <>
+                <Text className="font-bold text-5xl text-yellow-400">
+                  {displayValue.toLocaleString()}
+                </Text>
+                <Text className="ml-2 text-2xl text-yellow-400">coins</Text>
+              </>
+            ) : (
+              <ActivityIndicator size="large" color="#facc15" />
+            )}
           </View>
 
           <Pressable
