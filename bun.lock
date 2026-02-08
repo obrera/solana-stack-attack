@@ -43,6 +43,7 @@
         "better-auth": "catalog:",
         "dotenv": "catalog:",
         "expo": "^54.0.23",
+        "expo-clipboard": "^8.0.8",
         "expo-constants": "~18.0.13",
         "expo-dev-client": "^6.0.20",
         "expo-font": "~14.0.9",
@@ -112,12 +113,12 @@
         "@orpc/client": "catalog:",
         "@orpc/server": "catalog:",
         "@orpc/tanstack-query": "catalog:",
+        "@solana-mobile/wallet-standard-mobile": "^0.4.4",
+        "@solana-program/memo": "^0.10.0",
         "@solana-stack-attack/api": "workspace:*",
         "@solana-stack-attack/auth": "workspace:*",
         "@solana-stack-attack/env": "workspace:*",
         "@solana-stack-attack/solana-client": "workspace:*",
-        "@solana-mobile/wallet-standard-mobile": "^0.4.4",
-        "@solana-program/memo": "^0.10.0",
         "@solana/kit": "catalog:",
         "@solana/react": "^6.0.0",
         "@tailwindcss/vite": "^4.1.8",
@@ -1026,6 +1027,14 @@
 
     "@sinonjs/fake-timers": ["@sinonjs/fake-timers@10.3.0", "", { "dependencies": { "@sinonjs/commons": "^3.0.0" } }, "sha512-V4BG07kuYSUkTCSBHG8G8TNhM+F19jXFWnQtzj+we8DrkpSBCee9Z3Ms8yiGer/dlmhe35/Xdgyo3/0rQKg7YA=="],
 
+    "@solana-mobile/mobile-wallet-adapter-protocol": ["@solana-mobile/mobile-wallet-adapter-protocol@2.2.5", "", { "dependencies": { "@solana/codecs-strings": "^4.0.0", "@solana/wallet-standard": "^1.1.2", "@solana/wallet-standard-util": "^1.1.1", "@wallet-standard/core": "^1.0.3", "js-base64": "^3.7.5" }, "peerDependencies": { "react-native": ">0.69" } }, "sha512-kCI+0/umWm98M9g12ndpS56U6wBzq4XdhobCkDPF8qRDYX/iTU8CD+QMcalh7VgRT7GWEmySQvQdaugM0Chf0g=="],
+
+    "@solana-mobile/mobile-wallet-adapter-protocol-kit": ["@solana-mobile/mobile-wallet-adapter-protocol-kit@0.2.2", "", { "dependencies": { "@solana-mobile/mobile-wallet-adapter-protocol": "^2.2.5", "@solana/transactions": "^2.1.0", "bs58": "^5.0.0", "js-base64": "^3.7.7" }, "peerDependencies": { "@solana/kit": "^2.1.0" } }, "sha512-MUH8I9JfWdjIYJNyvPW/CHET1iq1wyilCaCfKuwq/t1g2K5MO90rKawA4OCM1xCviNY4h+hQJJ6LH4JZcs5XTA=="],
+
+    "@solana-mobile/wallet-standard-mobile": ["@solana-mobile/wallet-standard-mobile@0.4.4", "", { "dependencies": { "@solana-mobile/mobile-wallet-adapter-protocol": "^2.2.5", "@solana/wallet-standard-chains": "^1.1.0", "@solana/wallet-standard-features": "^1.2.0", "@wallet-standard/base": "^1.0.1", "@wallet-standard/features": "^1.0.3", "bs58": "^5.0.0", "js-base64": "^3.7.5", "qrcode": "^1.5.4" } }, "sha512-LMvqkS5/aEH+EiDje9Dk351go6wO3POysgmobM4qm8RsG5s6rDAW3U0zA+5f2coGCTyRx8BKE1I/9nHlwtBuow=="],
+
+    "@solana-program/memo": ["@solana-program/memo@0.10.0", "", { "peerDependencies": { "@solana/kit": "^5.0" } }, "sha512-1FvQFenL3lzl5SpxhWV4QJCOLU/nvAOXGXjKjS7dprvG+0u971xoanApN7bM/a4NFZolp6S+lP2xVl6vTVIxbg=="],
+
     "@solana-stack-attack/api": ["@solana-stack-attack/api@workspace:packages/api"],
 
     "@solana-stack-attack/auth": ["@solana-stack-attack/auth@workspace:packages/auth"],
@@ -1037,14 +1046,6 @@
     "@solana-stack-attack/env": ["@solana-stack-attack/env@workspace:packages/env"],
 
     "@solana-stack-attack/solana-client": ["@solana-stack-attack/solana-client@workspace:packages/solana-client"],
-
-    "@solana-mobile/mobile-wallet-adapter-protocol": ["@solana-mobile/mobile-wallet-adapter-protocol@2.2.5", "", { "dependencies": { "@solana/codecs-strings": "^4.0.0", "@solana/wallet-standard": "^1.1.2", "@solana/wallet-standard-util": "^1.1.1", "@wallet-standard/core": "^1.0.3", "js-base64": "^3.7.5" }, "peerDependencies": { "react-native": ">0.69" } }, "sha512-kCI+0/umWm98M9g12ndpS56U6wBzq4XdhobCkDPF8qRDYX/iTU8CD+QMcalh7VgRT7GWEmySQvQdaugM0Chf0g=="],
-
-    "@solana-mobile/mobile-wallet-adapter-protocol-kit": ["@solana-mobile/mobile-wallet-adapter-protocol-kit@0.2.2", "", { "dependencies": { "@solana-mobile/mobile-wallet-adapter-protocol": "^2.2.5", "@solana/transactions": "^2.1.0", "bs58": "^5.0.0", "js-base64": "^3.7.7" }, "peerDependencies": { "@solana/kit": "^2.1.0" } }, "sha512-MUH8I9JfWdjIYJNyvPW/CHET1iq1wyilCaCfKuwq/t1g2K5MO90rKawA4OCM1xCviNY4h+hQJJ6LH4JZcs5XTA=="],
-
-    "@solana-mobile/wallet-standard-mobile": ["@solana-mobile/wallet-standard-mobile@0.4.4", "", { "dependencies": { "@solana-mobile/mobile-wallet-adapter-protocol": "^2.2.5", "@solana/wallet-standard-chains": "^1.1.0", "@solana/wallet-standard-features": "^1.2.0", "@wallet-standard/base": "^1.0.1", "@wallet-standard/features": "^1.0.3", "bs58": "^5.0.0", "js-base64": "^3.7.5", "qrcode": "^1.5.4" } }, "sha512-LMvqkS5/aEH+EiDje9Dk351go6wO3POysgmobM4qm8RsG5s6rDAW3U0zA+5f2coGCTyRx8BKE1I/9nHlwtBuow=="],
-
-    "@solana-program/memo": ["@solana-program/memo@0.10.0", "", { "peerDependencies": { "@solana/kit": "^5.0" } }, "sha512-1FvQFenL3lzl5SpxhWV4QJCOLU/nvAOXGXjKjS7dprvG+0u971xoanApN7bM/a4NFZolp6S+lP2xVl6vTVIxbg=="],
 
     "@solana/accounts": ["@solana/accounts@6.0.0", "", { "dependencies": { "@solana/addresses": "6.0.0", "@solana/codecs-core": "6.0.0", "@solana/codecs-strings": "6.0.0", "@solana/errors": "6.0.0", "@solana/rpc-spec": "6.0.0", "@solana/rpc-types": "6.0.0" }, "peerDependencies": { "typescript": "^5.0.0" }, "optionalPeers": ["typescript"] }, "sha512-GXUYH8pjp5Z4dchhfjf1buO8Y0x9wlcfAHlKQLUmkFPcq6m9REpD+PKWuELC3v57mdwiR1sIj3V2lCwcWpoOQA=="],
 
@@ -1997,6 +1998,8 @@
     "expo": ["expo@54.0.33", "", { "dependencies": { "@babel/runtime": "^7.20.0", "@expo/cli": "54.0.23", "@expo/config": "~12.0.13", "@expo/config-plugins": "~54.0.4", "@expo/devtools": "0.1.8", "@expo/fingerprint": "0.15.4", "@expo/metro": "~54.2.0", "@expo/metro-config": "54.0.14", "@expo/vector-icons": "^15.0.3", "@ungap/structured-clone": "^1.3.0", "babel-preset-expo": "~54.0.10", "expo-asset": "~12.0.12", "expo-constants": "~18.0.13", "expo-file-system": "~19.0.21", "expo-font": "~14.0.11", "expo-keep-awake": "~15.0.8", "expo-modules-autolinking": "3.0.24", "expo-modules-core": "3.0.29", "pretty-format": "^29.7.0", "react-refresh": "^0.14.2", "whatwg-url-without-unicode": "8.0.0-3" }, "peerDependencies": { "@expo/dom-webview": "*", "@expo/metro-runtime": "*", "react": "*", "react-native": "*", "react-native-webview": "*" }, "optionalPeers": ["@expo/dom-webview", "@expo/metro-runtime", "react-native-webview"], "bin": { "expo": "bin/cli", "fingerprint": "bin/fingerprint", "expo-modules-autolinking": "bin/autolinking" } }, "sha512-3yOEfAKqo+gqHcV8vKcnq0uA5zxlohnhA3fu4G43likN8ct5ZZ3LjAh9wDdKteEkoad3tFPvwxmXW711S5OHUw=="],
 
     "expo-asset": ["expo-asset@12.0.12", "", { "dependencies": { "@expo/image-utils": "^0.8.8", "expo-constants": "~18.0.12" }, "peerDependencies": { "expo": "*", "react": "*", "react-native": "*" } }, "sha512-CsXFCQbx2fElSMn0lyTdRIyKlSXOal6ilLJd+yeZ6xaC7I9AICQgscY5nj0QcwgA+KYYCCEQEBndMsmj7drOWQ=="],
+
+    "expo-clipboard": ["expo-clipboard@8.0.8", "", { "peerDependencies": { "expo": "*", "react": "*", "react-native": "*" } }, "sha512-VKoBkHIpZZDJTB0jRO4/PZskHdMNOEz3P/41tmM6fDuODMpqhvyWK053X0ebspkxiawJX9lX33JXHBCvVsTTOA=="],
 
     "expo-constants": ["expo-constants@18.0.13", "", { "dependencies": { "@expo/config": "~12.0.13", "@expo/env": "~2.0.8" }, "peerDependencies": { "expo": "*", "react-native": "*" } }, "sha512-FnZn12E1dRYKDHlAdIyNFhBurKTS3F9CrfrBDJI5m3D7U17KBHMQ6JEfYlSj7LG7t+Ulr+IKaj58L1k5gBwTcQ=="],
 

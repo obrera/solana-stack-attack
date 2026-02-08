@@ -1,5 +1,4 @@
 import { Ionicons } from '@expo/vector-icons'
-import { useRouter } from 'expo-router'
 import { Card, useThemeColor } from 'heroui-native'
 import { Animated, Pressable, Text, View } from 'react-native'
 
@@ -16,17 +15,11 @@ export function GameFeatureIndex() {
     scaleAnim,
     floatingTexts,
     handleTap,
-    upgrades,
-    canAfford,
     dismissOfflineEarnings,
     dismissCelebration,
   } = useGameContext()
   const accentColor = useThemeColor('success')
   const mutedColor = useThemeColor('muted')
-  const router = useRouter()
-
-  // Check if player can afford any upgrade
-  const canAffordAnyUpgrade = upgrades.some((u) => canAfford(u.id))
 
   function formatLastSaved(date: Date | null): string {
     if (!date) {
@@ -63,7 +56,7 @@ export function GameFeatureIndex() {
       />
 
       {/* Save Status Bar */}
-      <View className="flex-row items-center justify-center gap-2 py-2">
+      <View className="flex-row items-center justify-center gap-2 pt-12 pb-2">
         {state.isSaving ? (
           <>
             <Ionicons name="cloud-upload" size={14} color={mutedColor} />
@@ -152,41 +145,6 @@ export function GameFeatureIndex() {
               </View>
             </View>
           </Card>
-        </View>
-
-        {/* Action Buttons */}
-        <View className="mt-4 w-full flex-row gap-3">
-          {/* Shop Button */}
-          <Pressable
-            onPress={() => router.push('/shop')}
-            disabled={!canAffordAnyUpgrade}
-            className="flex-1 rounded-lg p-4"
-            style={{
-              backgroundColor: canAffordAnyUpgrade ? accentColor : mutedColor,
-              opacity: canAffordAnyUpgrade ? 1 : 0.5,
-            }}
-          >
-            <View className="flex-row items-center justify-center gap-2">
-              <Ionicons name="cart" size={20} color="white" />
-              <Text className="font-semibold text-white">
-                {canAffordAnyUpgrade ? 'Shop' : 'Tap...'}
-              </Text>
-            </View>
-          </Pressable>
-
-          {/* Leaderboard Button */}
-          <Pressable
-            onPress={() => router.push('/leaderboard')}
-            className="flex-1 rounded-lg border-2 p-4"
-            style={{ borderColor: accentColor }}
-          >
-            <View className="flex-row items-center justify-center gap-2">
-              <Ionicons name="trophy" size={20} color={accentColor} />
-              <Text style={{ color: accentColor }} className="font-semibold">
-                Ranks
-              </Text>
-            </View>
-          </Pressable>
         </View>
       </View>
     </UiContainer>

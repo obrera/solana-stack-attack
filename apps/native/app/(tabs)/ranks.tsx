@@ -1,5 +1,5 @@
 import { GameFeatureLeaderboard } from '@/features/game/game-feature-leaderboard'
 
-export default function LeaderboardScreen() {
+export default function RanksScreen() {
   return <GameFeatureLeaderboard />
 }

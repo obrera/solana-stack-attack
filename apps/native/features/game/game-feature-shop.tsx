@@ -1,7 +1,5 @@
-import { Ionicons } from '@expo/vector-icons'
-import { useRouter } from 'expo-router'
 import { Card, useThemeColor } from 'heroui-native'
-import { Pressable, ScrollView, Text, View } from 'react-native'
+import { ScrollView, Text, View } from 'react-native'
 
 import { UiContainer } from '@/features/ui/ui/ui-container'
 import { useGameContext } from './data-access/game-provider'
@@ -11,7 +9,6 @@ import { gameFormatNumber } from './util/game-format-number'
 export function GameFeatureShop() {
   const accentColor = useThemeColor('success')
   const mutedColor = useThemeColor('muted')
-  const router = useRouter()
 
   const {
     state,
@@ -24,7 +21,7 @@ export function GameFeatureShop() {
 
   return (
     <UiContainer className="flex-1">
-      <ScrollView className="flex-1 p-4">
+      <ScrollView className="flex-1 p-4 pt-12">
         {/* Current Score */}
         <Card variant="secondary" className="mb-6 p-4">
           <View className="flex-row items-center justify-between">
@@ -89,20 +86,6 @@ export function GameFeatureShop() {
             ))}
         </View>
       </ScrollView>
-
-      {/* Back to Game Button */}
-      <View className="border-border/50 border-t p-4">
-        <Pressable
-          onPress={() => router.push('/game')}
-          className="w-full rounded-lg p-4"
-          style={{ backgroundColor: accentColor }}
-        >
-          <View className="flex-row items-center justify-center gap-2">
-            <Ionicons name="game-controller" size={20} color="white" />
-            <Text className="font-semibold text-white">Back to Game</Text>
-          </View>
-        </Pressable>
-      </View>
     </UiContainer>
   )
 }
