@@ -7,6 +7,7 @@ import { UiContainer } from '@/features/ui/ui/ui-container'
 import { useIsAuthenticated } from './data-access/auth-client'
 import { AuthUiSignInForm } from './ui/auth-ui-sign-in-form'
 import { AuthUiSignUpForm } from './ui/auth-ui-sign-up-form'
+import { AuthUiSolanaSignInButton } from './ui/auth-ui-solana-sign-in-button'
 
 export function AuthFeatureIndex() {
   const [mode, setMode] = useState<'signin' | 'signup'>('signin')
@@ -27,6 +28,14 @@ export function AuthFeatureIndex() {
       </View>
 
       {mode === 'signin' ? <AuthUiSignInForm /> : <AuthUiSignUpForm />}
+
+      <View className="my-6 flex-row items-center">
+        <View className="h-px flex-1 bg-muted" />
+        <Text className="mx-4 text-muted">or</Text>
+        <View className="h-px flex-1 bg-muted" />
+      </View>
+
+      <AuthUiSolanaSignInButton />
 
       <View className="mt-6 flex-row justify-center">
         <Text

@@ -1,4 +1,5 @@
 import { expo } from '@better-auth/expo'
+import { solanaAuth } from '@solana-stack-attack/better-auth-solana'
 import { db } from '@solana-stack-attack/db'
 import * as schema from '@solana-stack-attack/db/schema/auth'
 import { env } from '@solana-stack-attack/env/server'
@@ -32,5 +33,5 @@ export const auth = betterAuth({
       httpOnly: true,
     },
   },
-  plugins: [expo()],
+  plugins: [expo(), solanaAuth({ cluster: 'devnet', domain: 'localhost' })],
 })
