@@ -258,6 +258,8 @@
       "name": "@solana-stack-attack/solana-client",
       "version": "0.0.0",
       "dependencies": {
+        "@solana-program/token-2022": "^0.9.0",
+        "@solana-stack-attack/env": "workspace:*",
         "@solana/kit": "catalog:",
         "@solana/kit-plugin-rpc": "catalog:",
       },

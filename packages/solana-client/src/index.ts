@@ -1,3 +1,6 @@
 export * from './create-solana-client'
+export * from './fee-payer'
 export * from './get-balance'
 export * from './solana-client'
+export * from './token-balance'
+export * from './token-config'
