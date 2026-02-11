@@ -1,0 +1,10 @@
+{
+  "name": "Solana Stack Attack",
+  "symbol": "STACK",
+  "description": "The tap-to-earn token for Solana Stack Attack. Stack blocks, earn STACK.",
+  "image": "https://raw.githubusercontent.com/obrera/solana-stack-attack/main/assets/token/image.png",
+  "attributes": [
+    { "trait_type": "Game", "value": "Solana Stack Attack" },
+    { "trait_type": "Type", "value": "Reward Token" }
+  ]
+}
