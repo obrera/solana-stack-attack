@@ -37,13 +37,13 @@
   "scripts": {
     "build": "turbo build",
     "check-types": "turbo check-types",
+    "db:down": "docker compose down",
     "db:generate": "turbo -F @solana-stack-attack/db db:generate",
     "db:local": "turbo -F @solana-stack-attack/db db:local",
     "db:migrate": "turbo -F @solana-stack-attack/db db:migrate",
     "db:push": "turbo -F @solana-stack-attack/db db:push",
     "db:studio": "turbo -F @solana-stack-attack/db db:studio",
     "db:up": "docker compose up",
-    "db:down": "docker compose down",
     "dev": "turbo dev",
     "dev:native": "turbo -F native dev",
     "dev:server": "turbo -F server dev",
@@ -56,6 +56,7 @@
     "docker:run:web": "docker run --rm --name solana-stack-attack-web --init --stop-signal=SIGINT -it -p 3001:3001 ghcr.io/obrera/solana-stack-attack-web",
     "lint": "biome check .",
     "lint:fix": "biome check --write .",
+    "mint-token": "bun run scripts/mint-token.ts",
     "ruler:apply": "bunx @intellectronica/ruler@latest apply --local-only",
     "start:web": "turbo -F web start",
     "test": "turbo test"
@@ -67,6 +68,9 @@
   },
   "devDependencies": {
     "@biomejs/biome": "^2.2.0",
+    "@solana-program/system": "^0.11.0",
+    "@solana-program/token-2022": "^0.9.0",
+    "@solana/kit": "catalog:",
     "@solana-stack-attack/config": "workspace:*",
     "@types/bun": "catalog:",
     "lefthook": "^2.0.13",
