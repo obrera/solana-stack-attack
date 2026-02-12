@@ -16,6 +16,7 @@ import { ClusterDropdown } from '@/components/cluster-dropdown'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import { useGameContext } from '@/features/game/data-access/game-provider'
+import { RewardsFeature } from '@/features/rewards/rewards-feature'
 import { authClient } from '@/lib/auth-client'
 import { ProfileUiAvatar } from './ui/profile-ui-avatar'
 import { ProfileUiStatCard } from './ui/profile-ui-stat-card'
@@ -154,6 +155,12 @@ export function ProfileFeature() {
             value={`+${state.pointsPerSecond}`}
           />
         </div>
+      </div>
+
+      {/* Rewards */}
+      <div>
+        <h2 className="mb-3 font-semibold text-lg">Rewards</h2>
+        <RewardsFeature />
       </div>
 
       {/* Sync Status */}
