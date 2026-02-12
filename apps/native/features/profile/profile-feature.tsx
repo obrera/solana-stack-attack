@@ -1,4 +1,5 @@
 import { Ionicons } from '@expo/vector-icons'
+import { useMobileWallet } from '@wallet-ui/react-native-kit'
 import * as Clipboard from 'expo-clipboard'
 import { Card, useThemeColor } from 'heroui-native'
 import { Pressable, ScrollView, Text, View } from 'react-native'
@@ -9,6 +10,7 @@ import {
 } from '@/features/auth/data-access/auth-client'
 import { queryClient } from '@/features/core/util/core-orpc'
 import { useGameContext } from '@/features/game/data-access/game-provider'
+import { solanaEllipsify } from '@/features/solana/util/solana-ellipsify'
 import { UiContainer } from '@/features/ui/ui/ui-container'
 import { UiThemeToggle } from '@/features/ui/ui/ui-theme-toggle'
 
@@ -18,15 +20,19 @@ import { ProfileUiStatCard } from './ui/profile-ui-stat-card'
 export function ProfileFeature() {
   const { user } = useIsAuthenticated()
   const { state } = useGameContext()
+  const { account } = useMobileWallet()
   const accentColor = useThemeColor('success')
   const mutedColor = useThemeColor('muted')
 
-  // Mock wallet address for now - will integrate real wallet later
-  const walletAddress = 'SEekKY1iUoWYJqZ3d9QBsfJytNx5RLBjBmgznkGrqbH'
-  const truncatedWallet = `${walletAddress.slice(0, 4)}...${walletAddress.slice(-4)}`
+  const walletAddress = account?.address
+  const truncatedWallet = walletAddress
+    ? solanaEllipsify(walletAddress)
+    : 'Not connected'
 
   async function handleCopyWallet() {
-    await Clipboard.setStringAsync(walletAddress)
+    if (walletAddress) {
+      await Clipboard.setStringAsync(walletAddress)
+    }
   }
 
   function handleSignOut() {
