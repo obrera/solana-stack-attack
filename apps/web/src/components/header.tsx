@@ -1,57 +1,78 @@
-import { Link } from '@tanstack/react-router'
+import { Link, useLocation } from '@tanstack/react-router'
+import {
+  LucideDiamond,
+  LucideFlame,
+  LucideShoppingCart,
+  LucideTrophy,
+  LucideUser,
+} from 'lucide-react'
 import { useGameContext } from '@/features/game/data-access/game-provider'
 import { usePendingRewardCount } from '@/features/rewards/data-access/use-pending-reward-count'
-
-function NavDot({ color, visible }: { color: string; visible: boolean }) {
-  if (!visible) return null
-  return <span className={`ml-1 inline-block size-2.5 rounded-full ${color}`} />
-}
 
 function useHasAffordableUpgrade(): boolean {
   const { upgrades, canAfford } = useGameContext()
   return upgrades.some((u) => canAfford(u.id))
 }
 
-export default function Header() {
+interface TabItem {
+  to: string
+  label: string
+  icon: typeof LucideDiamond
+  badge?: boolean
+}
+
+function TabLink({ tab, isActive }: { isActive: boolean; tab: TabItem }) {
+  const Icon = tab.icon
+  return (
+    <Link
+      to={tab.to}
+      className={`relative flex flex-1 flex-col items-center gap-1 py-2 text-xs transition-colors ${
+        isActive ? 'text-green-500' : 'text-gray-500'
+      }`}
+    >
+      <div className="relative">
+        <Icon className="size-5" />
+        {tab.badge && (
+          <span className="absolute -top-1 -right-1 size-2.5 rounded-full bg-green-500" />
+        )}
+      </div>
+      <span>{tab.label}</span>
+    </Link>
+  )
+}
+
+export function BottomTabs() {
+  const location = useLocation()
   const pendingRewards = usePendingRewardCount()
   const hasAffordable = useHasAffordableUpgrade()
 
-  const links = [
-    { to: '/', label: 'Home' },
-    { to: '/game', label: 'Game' },
-    { to: '/leaderboard', label: 'Ranks' },
+  const tabs: TabItem[] = [
+    { to: '/game', label: 'Play', icon: LucideDiamond },
     {
       to: '/shop',
       label: 'Shop',
-      dot: hasAffordable,
-      dotColor: 'bg-green-500',
+      icon: LucideShoppingCart,
+      badge: hasAffordable,
     },
-    { to: '/burn', label: 'Burn' },
+    { to: '/burn', label: 'Burn', icon: LucideFlame },
+    { to: '/leaderboard', label: 'Ranks', icon: LucideTrophy },
     {
       to: '/profile',
       label: 'Profile',
-      dot: pendingRewards > 0,
-      dotColor: 'bg-green-500',
+      icon: LucideUser,
+      badge: pendingRewards > 0,
     },
-  ] as const
+  ]
 
   return (
-    <div>
-      <div className="flex flex-row items-center justify-between px-2 py-1">
-        <nav className="flex gap-4 text-lg">
-          {links.map(({ to, label, ...rest }) => {
-            const dot = 'dot' in rest ? rest.dot : false
-            const dotColor = 'dotColor' in rest ? rest.dotColor : 'bg-green-500'
-            return (
-              <Link key={to} to={to} className="flex items-center">
-                {label}
-                <NavDot visible={dot} color={dotColor} />
-              </Link>
-            )
-          })}
-        </nav>
-      </div>
-      <hr />
-    </div>
+    <nav className="fixed inset-x-0 bottom-0 z-40 flex border-gray-800 border-t bg-black/95 backdrop-blur-sm">
+      {tabs.map((tab) => (
+        <TabLink
+          key={tab.to}
+          tab={tab}
+          isActive={location.pathname === tab.to}
+        />
+      ))}
+    </nav>
   )
 }
