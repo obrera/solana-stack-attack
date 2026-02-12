@@ -1,5 +1,3 @@
-import { readFileSync } from 'node:fs'
-
 import { createKeyPairSignerFromBytes } from '@solana/kit'
 
 /**
@@ -8,9 +6,11 @@ import { createKeyPairSignerFromBytes } from '@solana/kit'
  * or a path to a JSON keypair file.
  */
 export async function getFeePayer(keypairJsonOrPath: string) {
-  const raw = keypairJsonOrPath.trimStart().startsWith('[')
-    ? keypairJsonOrPath
-    : readFileSync(keypairJsonOrPath, 'utf-8')
+  let raw = keypairJsonOrPath
+  if (!keypairJsonOrPath.trimStart().startsWith('[')) {
+    const { readFileSync } = await import('node:fs')
+    raw = readFileSync(keypairJsonOrPath, 'utf-8')
+  }
   const keypairBytes = new Uint8Array(JSON.parse(raw))
   return createKeyPairSignerFromBytes(keypairBytes)
 }
