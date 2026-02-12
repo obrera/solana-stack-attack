@@ -8,7 +8,7 @@ import {
   useRef,
   useState,
 } from 'react'
-import { Animated } from 'react-native'
+import { Animated, AppState } from 'react-native'
 
 import { authClient } from '@/features/auth/data-access/auth-client'
 import { client } from '@/features/core/util/core-orpc'
@@ -34,6 +34,8 @@ export interface GameState {
   offlineEarnings: number | null // Set when user returns with offline earnings
   achievedMilestones: string[]
   pendingCelebration: Milestone | null
+  energy: number
+  maxEnergy: number
 }
 
 interface GameContextValue {
@@ -77,6 +79,8 @@ export function GameProvider({ children }: { children: ReactNode }) {
     useState<Milestone | null>(null)
   const celebrationQueue = useRef<Milestone[]>([])
   const [milestones, setMilestones] = useState<Milestone[]>([])
+  const [energy, setEnergy] = useState(100)
+  const [maxEnergy] = useState(100)
 
   // Use refs for values we need in intervals to avoid stale closures
   const stateRef = useRef({
@@ -85,6 +89,8 @@ export function GameProvider({ children }: { children: ReactNode }) {
     ownedUpgrades,
     pointsPerSecond: 0,
     achievedMilestones: [] as string[],
+    energy: 100,
+    maxEnergy: 100,
   })
   const lastSavedStateRef = useRef({
     score: 0,
@@ -92,6 +98,8 @@ export function GameProvider({ children }: { children: ReactNode }) {
     ownedUpgrades: [] as OwnedUpgrade[],
     pointsPerSecond: 0,
     achievedMilestones: [] as string[],
+    energy: 100,
+    maxEnergy: 100,
   })
   const isSavingRef = useRef(false)
 
@@ -134,12 +142,19 @@ export function GameProvider({ children }: { children: ReactNode }) {
           setTotalTaps(state.totalTaps)
           setOwnedUpgrades(state.ownedUpgrades as OwnedUpgrade[])
           setAchievedMilestones((state.achievedMilestones as string[]) ?? [])
+          setEnergy(
+            ((state as Record<string, unknown>).energy as number) ?? 100,
+          )
           lastSavedStateRef.current = {
             score: state.score,
             totalTaps: state.totalTaps,
             ownedUpgrades: state.ownedUpgrades as OwnedUpgrade[],
             pointsPerSecond: state.pointsPerSecond ?? 0,
             achievedMilestones: (state.achievedMilestones as string[]) ?? [],
+            energy:
+              ((state as Record<string, unknown>).energy as number) ?? 100,
+            maxEnergy:
+              ((state as Record<string, unknown>).maxEnergy as number) ?? 100,
           }
           if (state.updatedAt) {
             setLastSavedAt(new Date(state.updatedAt))
@@ -175,7 +190,8 @@ export function GameProvider({ children }: { children: ReactNode }) {
       JSON.stringify(current.ownedUpgrades) ===
         JSON.stringify(last.ownedUpgrades) &&
       JSON.stringify(current.achievedMilestones) ===
-        JSON.stringify(last.achievedMilestones)
+        JSON.stringify(last.achievedMilestones) &&
+      current.energy === last.energy
     ) {
       console.log('[Game] No changes to save')
       return
@@ -192,6 +208,8 @@ export function GameProvider({ children }: { children: ReactNode }) {
         ownedUpgrades: current.ownedUpgrades,
         pointsPerSecond: current.pointsPerSecond,
         achievedMilestones: current.achievedMilestones,
+        energy: current.energy,
+        maxEnergy: current.maxEnergy,
       })
       lastSavedStateRef.current = { ...current }
       setLastSavedAt(new Date())
@@ -206,7 +224,9 @@ export function GameProvider({ children }: { children: ReactNode }) {
 
   // Auto-save periodically
   useEffect(() => {
-    if (!isAuthenticated) return
+    if (!isAuthenticated) {
+      return
+    }
 
     console.log('[Game] Starting auto-save interval')
     const interval = setInterval(() => {
@@ -217,6 +237,25 @@ export function GameProvider({ children }: { children: ReactNode }) {
       console.log('[Game] Clearing auto-save interval')
       clearInterval(interval)
     }
+  }, [isAuthenticated, doSave])
+
+  // Save on app background/close
+  useEffect(() => {
+    if (!isAuthenticated) {
+      return
+    }
+
+    const subscription = AppState.addEventListener(
+      'change',
+      (nextState: string) => {
+        if (nextState === 'background' || nextState === 'inactive') {
+          console.log('[Game] App going to background, saving...')
+          doSave()
+        }
+      },
+    )
+
+    return () => subscription.remove()
   }, [isAuthenticated, doSave])
 
   // Calculate upgrade effects
@@ -269,8 +308,18 @@ export function GameProvider({ children }: { children: ReactNode }) {
       ownedUpgrades,
       pointsPerSecond,
       achievedMilestones,
+      energy,
+      maxEnergy,
     }
-  }, [score, totalTaps, ownedUpgrades, pointsPerSecond, achievedMilestones])
+  }, [
+    score,
+    totalTaps,
+    ownedUpgrades,
+    pointsPerSecond,
+    achievedMilestones,
+    energy,
+    maxEnergy,
+  ])
 
   // Calculate total upgrade levels for milestone checking
   const totalUpgradeLevels = ownedUpgrades.reduce((sum, u) => sum + u.level, 0)
@@ -331,12 +380,21 @@ export function GameProvider({ children }: { children: ReactNode }) {
     setPendingCelebration(null)
   }, [])
 
-  // Auto-tapper interval
+  // Auto-tapper interval (drains energy, stops producing when energy = 0)
   useEffect(() => {
-    if (pointsPerSecond <= 0) return
+    if (pointsPerSecond <= 0) {
+      return
+    }
 
     const interval = setInterval(() => {
-      setScore((prev) => prev + pointsPerSecond)
+      setEnergy((prevEnergy) => {
+        if (prevEnergy <= 0) {
+          return 0
+        }
+        // Energy > 0: produce points and drain energy
+        setScore((prev) => prev + pointsPerSecond)
+        return Math.max(0, prevEnergy - 1)
+      })
     }, 1000)
 
     return () => clearInterval(interval)
@@ -348,6 +406,7 @@ export function GameProvider({ children }: { children: ReactNode }) {
 
       setScore((prev) => prev + pointsPerTap)
       setTotalTaps((prev) => prev + 1)
+      setEnergy((prev) => Math.min(maxEnergy, prev + 5))
 
       Animated.sequence([
         Animated.timing(scaleAnim, {
@@ -373,7 +432,7 @@ export function GameProvider({ children }: { children: ReactNode }) {
         setFloatingTexts((prev) => prev.filter((t) => t.id !== id))
       }, 500)
     },
-    [pointsPerTap, scaleAnim],
+    [pointsPerTap, scaleAnim, maxEnergy],
   )
 
   const canAfford = useCallback(
@@ -424,6 +483,8 @@ export function GameProvider({ children }: { children: ReactNode }) {
       offlineEarnings,
       achievedMilestones,
       pendingCelebration,
+      energy,
+      maxEnergy,
     },
     scaleAnim,
     floatingTexts,

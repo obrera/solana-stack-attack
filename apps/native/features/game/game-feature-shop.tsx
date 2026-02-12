@@ -21,7 +21,7 @@ export function GameFeatureShop() {
 
   return (
     <UiContainer className="flex-1">
-      <ScrollView className="flex-1 p-4 pt-12">
+      <ScrollView className="flex-1 p-4">
         {/* Current Score */}
         <Card variant="secondary" className="mb-6 p-4">
           <View className="flex-row items-center justify-between">

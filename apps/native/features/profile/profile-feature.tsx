@@ -19,12 +19,67 @@ import { UiThemeToggle } from '@/features/ui/ui/ui-theme-toggle'
 import { ProfileUiAvatar } from './ui/profile-ui-avatar'
 import { ProfileUiStatCard } from './ui/profile-ui-stat-card'
 
+function formatLastSaved(date: Date | null): string {
+  if (!date) {
+    return 'Not saved yet'
+  }
+  const seconds = Math.floor((Date.now() - date.getTime()) / 1000)
+  if (seconds < 5) {
+    return 'Just now'
+  }
+  if (seconds < 60) {
+    return `${seconds}s ago`
+  }
+  const minutes = Math.floor(seconds / 60)
+  if (minutes < 60) {
+    return `${minutes}m ago`
+  }
+  return date.toLocaleTimeString()
+}
+
+export function useSaveStatus() {
+  const { state } = useGameContext()
+  const stale = state.lastSavedAt
+    ? Date.now() - state.lastSavedAt.getTime() > 5 * 60 * 1000
+    : false
+
+  if (state.isSaving) {
+    return {
+      color: 'warning' as const,
+      icon: 'cloud-upload' as const,
+      label: 'Saving...',
+    }
+  }
+  if (!state.lastSavedAt) {
+    return {
+      color: 'danger' as const,
+      icon: 'cloud-offline' as const,
+      label: 'Not saved yet',
+    }
+  }
+  if (stale) {
+    return {
+      color: 'warning' as const,
+      icon: 'cloud-upload' as const,
+      label: `Saved ${formatLastSaved(state.lastSavedAt)}`,
+    }
+  }
+  return {
+    color: 'success' as const,
+    icon: 'cloud-done' as const,
+    label: `Saved ${formatLastSaved(state.lastSavedAt)}`,
+  }
+}
+
 export function ProfileFeature() {
   const { user } = useIsAuthenticated()
   const { state } = useGameContext()
   const { account } = useMobileWallet()
+  const saveStatus = useSaveStatus()
   const { balance } = useTokenBalance()
   const accentColor = useThemeColor('success')
+  const warningColor = useThemeColor('warning')
+  const dangerColor = useThemeColor('danger')
   const mutedColor = useThemeColor('muted')
 
   const walletAddress = account?.address
@@ -127,6 +182,24 @@ export function ProfileFeature() {
         <View className="mb-6">
           <RewardsFeature />
         </View>
+
+        {/* Sync Status */}
+        <Card variant="secondary" className="mb-6 p-4">
+          <View className="flex-row items-center gap-3">
+            <Ionicons
+              name={saveStatus.icon}
+              size={22}
+              color={
+                saveStatus.color === 'success'
+                  ? accentColor
+                  : saveStatus.color === 'warning'
+                    ? warningColor
+                    : dangerColor
+              }
+            />
+            <Text className="text-foreground text-sm">{saveStatus.label}</Text>
+          </View>
+        </Card>
 
         {/* Settings */}
         <Text className="mb-3 font-semibold text-foreground text-lg">
