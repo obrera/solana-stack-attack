@@ -1,8 +1,8 @@
 import { Ionicons } from '@expo/vector-icons'
+import type { Upgrade } from '@solana-stack-attack/game-data-access/game-upgrades'
 import { gameFormatNumber } from '@solana-stack-attack/game-util/game-format-number'
 import { Card } from 'heroui-native'
 import { Pressable, Text, View } from 'react-native'
-import type { Upgrade } from '../data-access/use-game-upgrades'
 
 interface GameUiUpgradeCardProps {
   upgrade: Upgrade

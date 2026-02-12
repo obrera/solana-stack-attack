@@ -1,7 +1,8 @@
+import type { GameClient } from '@solana-stack-attack/game-data-access/game-provider'
 import {
-  gameCheckMilestones,
-  type Milestone,
-} from '@solana-stack-attack/game-util/game-milestones'
+  GameProvider as SharedGameProvider,
+  useGameContext as useSharedGameContext,
+} from '@solana-stack-attack/game-data-access/game-provider'
 import * as Haptics from 'expo-haptics'
 import {
   createContext,
@@ -9,449 +10,87 @@ import {
   useCallback,
   useContext,
   useEffect,
+  useMemo,
   useRef,
-  useState,
 } from 'react'
 import { Animated, AppState } from 'react-native'
-import { authClient } from '@/features/auth/data-access/auth-client'
+
+import { useIsAuthenticated } from '@/features/auth/data-access/auth-client'
 import { client } from '@/features/core/util/core-orpc'
-import { type OwnedUpgrade, UPGRADES, type Upgrade } from './use-game-upgrades'
 
-export interface FloatingText {
-  id: number
-  x: number
-  y: number
-  value: number
+function createGameClient(): GameClient {
+  return {
+    getState: async () => {
+      const state = await client.game.getState()
+      if (!state) return null
+      return {
+        ...state,
+        updatedAt: state.updatedAt?.toISOString(),
+      }
+    },
+    saveState: async (state) => {
+      await client.game.saveState(state)
+    },
+    getMilestones: () => client.game.getMilestones(),
+    getPurchasedBurnUpgrades: () => client.burn.purchased(),
+  }
 }
 
-export interface GameState {
-  score: number
-  totalTaps: number
-  pointsPerTap: number
-  pointsPerSecond: number
-  level: number
-  isLoading: boolean
-  isSaving: boolean
-  lastSavedAt: Date | null
-  offlineEarnings: number | null // Set when user returns with offline earnings
-  achievedMilestones: string[]
-  pendingCelebration: Milestone | null
-  energy: number
-  maxEnergy: number
-}
-
-interface GameContextValue {
-  state: GameState
+/**
+ * Native-specific extensions to the shared game context.
+ * Adds haptics, Animated tap bounce, and RN event handling.
+ */
+interface NativeGameContextValue {
   scaleAnim: Animated.Value
-  floatingTexts: FloatingText[]
   handleTap: (event: {
     nativeEvent: { locationX: number; locationY: number }
   }) => void
-  // Upgrades
-  upgrades: Upgrade[]
-  ownedUpgrades: OwnedUpgrade[]
-  getUpgradeCost: (upgradeId: string) => number
-  getUpgradeLevel: (upgradeId: string) => number
-  canAfford: (upgradeId: string) => boolean
-  buyUpgrade: (upgradeId: string) => boolean
-  buyAll: () => number
-  refillEnergy: () => void
-  // Persistence
-  saveGame: () => Promise<void>
-  // Offline earnings
-  dismissOfflineEarnings: () => void
-  // Milestones
-  milestones: Milestone[]
-  dismissCelebration: () => void
 }
 
-const GameContext = createContext<GameContextValue | null>(null)
-
-// Auto-save interval in milliseconds
-const AUTO_SAVE_INTERVAL = 10_000
+const NativeGameContext = createContext<NativeGameContextValue | null>(null)
 
 export function GameProvider({ children }: { children: ReactNode }) {
-  const [score, setScore] = useState(0)
-  const [totalTaps, setTotalTaps] = useState(0)
-  const [ownedUpgrades, setOwnedUpgrades] = useState<OwnedUpgrade[]>([])
-  const [isLoading, setIsLoading] = useState(true)
-  const [isSaving, setIsSaving] = useState(false)
-  const [lastSavedAt, setLastSavedAt] = useState<Date | null>(null)
-  const [offlineEarnings, setOfflineEarnings] = useState<number | null>(null)
-  const [achievedMilestones, setAchievedMilestones] = useState<string[]>([])
-  const [pendingCelebration, setPendingCelebration] =
-    useState<Milestone | null>(null)
-  const celebrationQueue = useRef<Milestone[]>([])
-  const [milestones, setMilestones] = useState<Milestone[]>([])
-  const [energy, setEnergy] = useState(100)
-  const [maxEnergy] = useState(100)
+  const { isAuthenticated } = useIsAuthenticated()
+  const gameClient = useMemo(() => createGameClient(), [])
 
-  // Use refs for values we need in intervals to avoid stale closures
-  const stateRef = useRef({
-    score,
-    totalTaps,
-    ownedUpgrades,
-    pointsPerSecond: 0,
-    achievedMilestones: [] as string[],
-    energy: 100,
-    maxEnergy: 100,
-  })
-  const lastSavedStateRef = useRef({
-    score: 0,
-    totalTaps: 0,
-    ownedUpgrades: [] as OwnedUpgrade[],
-    pointsPerSecond: 0,
-    achievedMilestones: [] as string[],
-    energy: 100,
-    maxEnergy: 100,
-  })
-  const isSavingRef = useRef(false)
+  return (
+    <SharedGameProvider client={gameClient} isAuthenticated={isAuthenticated}>
+      <NativeGameLayer>{children}</NativeGameLayer>
+    </SharedGameProvider>
+  )
+}
 
-  // Animation values
+function NativeGameLayer({ children }: { children: ReactNode }) {
+  const { tap, saveGame, state } = useSharedGameContext()
   const scaleAnim = useRef(new Animated.Value(1)).current
-  const [floatingTexts, setFloatingTexts] = useState<FloatingText[]>([])
-  const floatingIdRef = useRef(0)
-
-  // Burn upgrades (premium STACK upgrades)
-  const [burnUpgrades, setBurnUpgrades] = useState<string[]>([])
-
-  // Get session for auth check
-  const { data: session } = authClient.useSession()
-  const isAuthenticated = !!session?.user
-
-  // Fetch milestones on mount
-  useEffect(() => {
-    const fetchMilestones = async () => {
-      try {
-        const data = await client.game.getMilestones()
-        setMilestones(data)
-      } catch (error) {
-        console.error('[Game] Failed to fetch milestones:', error)
-      }
-    }
-    fetchMilestones()
-  }, [])
-
-  // Load burn upgrades on mount (if authenticated)
-  useEffect(() => {
-    if (!isAuthenticated) return
-
-    const loadBurns = async () => {
-      try {
-        const purchased = await client.burn.purchased()
-        setBurnUpgrades(purchased)
-      } catch (error) {
-        console.error('[Game] Failed to load burn upgrades:', error)
-      }
-    }
-    loadBurns()
-  }, [isAuthenticated])
-
-  // Load game state on mount (if authenticated)
-  useEffect(() => {
-    if (!isAuthenticated) {
-      setIsLoading(false)
-      return
-    }
-
-    const loadState = async () => {
-      try {
-        console.log('[Game] Loading state...')
-        const state = await client.game.getState()
-        console.log('[Game] Loaded state:', state)
-        if (state) {
-          setScore(state.score)
-          setTotalTaps(state.totalTaps)
-          setOwnedUpgrades(state.ownedUpgrades as OwnedUpgrade[])
-          setAchievedMilestones((state.achievedMilestones as string[]) ?? [])
-          setEnergy(
-            ((state as Record<string, unknown>).energy as number) ?? 100,
-          )
-          lastSavedStateRef.current = {
-            score: state.score,
-            totalTaps: state.totalTaps,
-            ownedUpgrades: state.ownedUpgrades as OwnedUpgrade[],
-            pointsPerSecond: state.pointsPerSecond ?? 0,
-            achievedMilestones: (state.achievedMilestones as string[]) ?? [],
-            energy:
-              ((state as Record<string, unknown>).energy as number) ?? 100,
-            maxEnergy:
-              ((state as Record<string, unknown>).maxEnergy as number) ?? 100,
-          }
-          if (state.updatedAt) {
-            setLastSavedAt(new Date(state.updatedAt))
-          }
-          // Show welcome back modal if there are offline earnings
-          if (state.offlineEarnings && state.offlineEarnings > 0) {
-            console.log('[Game] Offline earnings:', state.offlineEarnings)
-            setOfflineEarnings(state.offlineEarnings)
-          }
-        }
-      } catch (error) {
-        console.error('[Game] Failed to load state:', error)
-      } finally {
-        setIsLoading(false)
-      }
-    }
-
-    loadState()
-  }, [isAuthenticated])
-
-  // Save game state (using refs to get fresh values)
-  const doSave = useCallback(async () => {
-    if (!isAuthenticated || isSavingRef.current) return
-
-    const current = stateRef.current
-    const last = lastSavedStateRef.current
-
-    // Check if state actually changed
-    if (
-      current.score === last.score &&
-      current.totalTaps === last.totalTaps &&
-      current.pointsPerSecond === last.pointsPerSecond &&
-      JSON.stringify(current.ownedUpgrades) ===
-        JSON.stringify(last.ownedUpgrades) &&
-      JSON.stringify(current.achievedMilestones) ===
-        JSON.stringify(last.achievedMilestones) &&
-      current.energy === last.energy
-    ) {
-      console.log('[Game] No changes to save')
-      return
-    }
-
-    console.log('[Game] Saving state...', current)
-    isSavingRef.current = true
-    setIsSaving(true)
-
-    try {
-      await client.game.saveState({
-        score: current.score,
-        totalTaps: current.totalTaps,
-        ownedUpgrades: current.ownedUpgrades,
-        pointsPerSecond: current.pointsPerSecond,
-        achievedMilestones: current.achievedMilestones,
-        energy: current.energy,
-        maxEnergy: current.maxEnergy,
-      })
-      lastSavedStateRef.current = { ...current }
-      setLastSavedAt(new Date())
-      console.log('[Game] Saved successfully!')
-    } catch (error) {
-      console.error('[Game] Failed to save:', error)
-    } finally {
-      isSavingRef.current = false
-      setIsSaving(false)
-    }
-  }, [isAuthenticated])
-
-  // Auto-save periodically
-  useEffect(() => {
-    if (!isAuthenticated) {
-      return
-    }
-
-    console.log('[Game] Starting auto-save interval')
-    const interval = setInterval(() => {
-      doSave()
-    }, AUTO_SAVE_INTERVAL)
-
-    return () => {
-      console.log('[Game] Clearing auto-save interval')
-      clearInterval(interval)
-    }
-  }, [isAuthenticated, doSave])
 
   // Save on app background/close
   useEffect(() => {
-    if (!isAuthenticated) {
-      return
-    }
-
     const subscription = AppState.addEventListener(
       'change',
       (nextState: string) => {
         if (nextState === 'background' || nextState === 'inactive') {
-          console.log('[Game] App going to background, saving...')
-          doSave()
+          saveGame()
         }
       },
     )
-
     return () => subscription.remove()
-  }, [isAuthenticated, doSave])
+  }, [saveGame])
 
-  // Calculate upgrade effects
-  const getUpgradeLevel = useCallback(
-    (upgradeId: string): number => {
-      const owned = ownedUpgrades.find((u) => u.id === upgradeId)
-      return owned?.level ?? 0
-    },
-    [ownedUpgrades],
-  )
-
-  const getUpgradeCost = useCallback(
-    (upgradeId: string): number => {
-      const upgrade = UPGRADES.find((u) => u.id === upgradeId)
-      if (!upgrade) return Number.POSITIVE_INFINITY
-
-      const level = getUpgradeLevel(upgradeId)
-      return Math.floor(upgrade.baseCost * upgrade.costMultiplier ** level)
-    },
-    [getUpgradeLevel],
-  )
-
-  // Check burn upgrade ownership
-  const hasBurnUpgrade = (id: string) => burnUpgrades.includes(id)
-
-  // Effective max energy (boosted by Energy Surge burn upgrade)
-  const effectiveMaxEnergy =
-    maxEnergy + (hasBurnUpgrade('energy_surge') ? 50 : 0)
-
-  const pointsPerTap = (() => {
-    let total = 1
-    for (const owned of ownedUpgrades) {
-      const upgrade = UPGRADES.find((u) => u.id === owned.id)
-      if (upgrade?.effect.type === 'tap_multiplier') {
-        total += upgrade.effect.value * owned.level
-      }
-    }
-    // Golden Touch burn upgrade: +50 per tap
-    if (hasBurnUpgrade('golden_touch')) {
-      total += 50
-    }
-    return total
-  })()
-
-  const pointsPerSecond = (() => {
-    let total = 0
-    for (const owned of ownedUpgrades) {
-      const upgrade = UPGRADES.find((u) => u.id === owned.id)
-      if (upgrade?.effect.type === 'auto_tapper') {
-        total += upgrade.effect.value * owned.level
-      }
-    }
-    return total
-  })()
-
-  // Keep refs in sync (after pointsPerSecond is calculated)
+  // Haptic feedback on milestone celebration
   useEffect(() => {
-    stateRef.current = {
-      score,
-      totalTaps,
-      ownedUpgrades,
-      pointsPerSecond,
-      achievedMilestones,
-      energy,
-      maxEnergy,
+    if (state.pendingCelebration) {
+      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success)
     }
-  }, [
-    score,
-    totalTaps,
-    ownedUpgrades,
-    pointsPerSecond,
-    achievedMilestones,
-    energy,
-    maxEnergy,
-  ])
+  }, [state.pendingCelebration])
 
-  // Calculate total upgrade levels for milestone checking
-  const totalUpgradeLevels = ownedUpgrades.reduce((sum, u) => sum + u.level, 0)
-
-  // Check for new milestones
-  useEffect(() => {
-    if (isLoading) {
-      return
-    }
-
-    const newlyAchieved = gameCheckMilestones(
-      score,
-      totalTaps,
-      totalUpgradeLevels,
-      achievedMilestones,
-      milestones,
-    )
-
-    if (newlyAchieved.length > 0) {
-      // Add to achieved list
-      setAchievedMilestones((prev) => [
-        ...prev,
-        ...newlyAchieved.map((m) => m.id),
-      ])
-
-      // Queue celebrations
-      celebrationQueue.current.push(...newlyAchieved)
-
-      // Show first celebration if none pending
-      if (!pendingCelebration && celebrationQueue.current.length > 0) {
-        const next = celebrationQueue.current.shift()
-        if (next) {
-          setPendingCelebration(next)
-          Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success)
-        }
-      }
-    }
-  }, [
-    score,
-    totalTaps,
-    totalUpgradeLevels,
-    achievedMilestones,
-    isLoading,
-    pendingCelebration,
-    milestones,
-  ])
-
-  // Dismiss celebration and show next in queue
-  const dismissCelebration = useCallback(() => {
-    if (celebrationQueue.current.length > 0) {
-      const next = celebrationQueue.current.shift()
-      if (next) {
-        setPendingCelebration(next)
-        Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success)
-        return
-      }
-    }
-    setPendingCelebration(null)
-  }, [])
-
-  // Diamond Hands multiplier (1.1x when owned)
-  const scoreMultiplier = hasBurnUpgrade('diamond_hands') ? 1.1 : 1.0
-  // Auto-Pilot: auto-tappers run at 50% even at 0 energy
-  const hasAutoPilot = hasBurnUpgrade('auto_pilot')
-
-  // Auto-tapper interval (drains energy, stops producing when energy = 0)
-  useEffect(() => {
-    if (pointsPerSecond <= 0) {
-      return
-    }
-
-    const interval = setInterval(() => {
-      setEnergy((prevEnergy) => {
-        if (prevEnergy <= 0) {
-          // Auto-Pilot: produce at 50% speed even with no energy
-          if (hasAutoPilot) {
-            const earned = Math.floor(pointsPerSecond * 0.5 * scoreMultiplier)
-            setScore((prev) => prev + earned)
-          }
-          return 0
-        }
-        // Energy > 0: produce points and drain energy
-        const earned = Math.floor(pointsPerSecond * scoreMultiplier)
-        setScore((prev) => prev + earned)
-        return Math.max(0, prevEnergy - 1)
-      })
-    }, 1000)
-
-    return () => clearInterval(interval)
-  }, [pointsPerSecond, scoreMultiplier, hasAutoPilot])
-
+  // Native tap handler: calls shared tap() + adds haptics + animation
   const handleTap = useCallback(
     (event: { nativeEvent: { locationX: number; locationY: number } }) => {
       Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light)
 
-      const earned = Math.floor(pointsPerTap * scoreMultiplier)
-      setScore((prev) => prev + earned)
-      setTotalTaps((prev) => prev + 1)
-      setEnergy((prev) => Math.min(effectiveMaxEnergy, prev + 5))
+      const { locationX, locationY } = event.nativeEvent
+      tap(locationX, locationY)
 
       Animated.sequence([
         Animated.timing(scaleAnim, {
@@ -465,131 +104,38 @@ export function GameProvider({ children }: { children: ReactNode }) {
           useNativeDriver: true,
         }),
       ]).start()
-
-      const id = floatingIdRef.current++
-      const { locationX, locationY } = event.nativeEvent
-      setFloatingTexts((prev) => [
-        ...prev,
-        { id, x: locationX, y: locationY, value: earned },
-      ])
-
-      setTimeout(() => {
-        setFloatingTexts((prev) => prev.filter((t) => t.id !== id))
-      }, 500)
     },
-    [pointsPerTap, scoreMultiplier, scaleAnim, effectiveMaxEnergy],
+    [tap, scaleAnim],
   )
 
-  const canAfford = useCallback(
-    (upgradeId: string): boolean => {
-      return score >= getUpgradeCost(upgradeId)
-    },
-    [score, getUpgradeCost],
+  const value = useMemo(
+    () => ({ scaleAnim, handleTap }),
+    [scaleAnim, handleTap],
   )
 
-  const buyUpgrade = useCallback(
-    (upgradeId: string): boolean => {
-      const cost = getUpgradeCost(upgradeId)
-      if (score < cost) return false
-
-      setScore((prev) => prev - cost)
-      setOwnedUpgrades((prev) => {
-        const existing = prev.find((u) => u.id === upgradeId)
-        if (existing) {
-          return prev.map((u) =>
-            u.id === upgradeId ? { ...u, level: u.level + 1 } : u,
-          )
-        }
-        return [...prev, { id: upgradeId, level: 1 }]
-      })
-
-      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success)
-      return true
-    },
-    [score, getUpgradeCost],
+  return (
+    <NativeGameContext.Provider value={value}>
+      {children}
+    </NativeGameContext.Provider>
   )
-
-  // Buy all affordable upgrades, starting from most expensive
-  const buyAll = useCallback((): number => {
-    let totalSpent = 0
-    let bought = true
-    while (bought) {
-      bought = false
-      // Sort by cost descending, buy most expensive first
-      const sorted = [...UPGRADES].sort((a, b) => {
-        const costA = getUpgradeCost(a.id)
-        const costB = getUpgradeCost(b.id)
-        return costB - costA
-      })
-      for (const upgrade of sorted) {
-        const cost = getUpgradeCost(upgrade.id)
-        if (score - totalSpent >= cost) {
-          // Use buyUpgrade which handles state
-          if (buyUpgrade(upgrade.id)) {
-            totalSpent += cost
-            bought = true
-          }
-        }
-      }
-    }
-    if (totalSpent > 0) {
-      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success)
-    }
-    return totalSpent
-  }, [score, getUpgradeCost, buyUpgrade])
-
-  // Refill energy to max (called after fuel cell burn)
-  const refillEnergy = useCallback(() => {
-    setEnergy(effectiveMaxEnergy)
-    Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success)
-  }, [effectiveMaxEnergy])
-
-  const level = Math.floor(totalTaps / 100) + 1
-
-  const dismissOfflineEarnings = useCallback(() => {
-    setOfflineEarnings(null)
-  }, [])
-
-  const value: GameContextValue = {
-    state: {
-      score,
-      totalTaps,
-      pointsPerTap,
-      pointsPerSecond,
-      level,
-      isLoading,
-      isSaving,
-      lastSavedAt,
-      offlineEarnings,
-      achievedMilestones,
-      pendingCelebration,
-      energy,
-      maxEnergy: effectiveMaxEnergy,
-    },
-    scaleAnim,
-    floatingTexts,
-    handleTap,
-    upgrades: UPGRADES,
-    ownedUpgrades,
-    getUpgradeCost,
-    getUpgradeLevel,
-    canAfford,
-    buyUpgrade,
-    buyAll,
-    refillEnergy,
-    saveGame: doSave,
-    dismissOfflineEarnings,
-    milestones,
-    dismissCelebration,
-  }
-
-  return <GameContext.Provider value={value}>{children}</GameContext.Provider>
 }
 
-export function useGameContext(): GameContextValue {
-  const context = useContext(GameContext)
+function useNativeGameContext(): NativeGameContextValue {
+  const context = useContext(NativeGameContext)
   if (!context) {
-    throw new Error('useGameContext must be used within a GameProvider')
+    throw new Error(
+      'useNativeGameContext must be used within a NativeGameLayer',
+    )
   }
   return context
+}
+
+/**
+ * Combined hook: shared game context + native extensions.
+ * Drop-in replacement for the old useGameContext.
+ */
+export function useGameContext() {
+  const shared = useSharedGameContext()
+  const native = useNativeGameContext()
+  return { ...shared, ...native }
 }
