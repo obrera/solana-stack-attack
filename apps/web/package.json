@@ -20,6 +20,7 @@
     "@solana-program/memo": "^0.10.0",
     "@solana-stack-attack/api": "workspace:*",
     "@solana-stack-attack/auth": "workspace:*",
+    "@solana-stack-attack/better-auth-solana": "workspace:*",
     "@solana-stack-attack/env": "workspace:*",
     "@solana-stack-attack/game-data-access": "workspace:*",
     "@solana-stack-attack/game-ui-web": "workspace:*",
