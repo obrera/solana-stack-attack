@@ -1,15 +1,8 @@
-import { createFileRoute } from '@tanstack/react-router'
-
-import { SolanaSignInCard } from '@/components/solana-sign-in-card'
+import { createFileRoute, redirect } from '@tanstack/react-router'
 
 export const Route = createFileRoute('/login')({
-  component: RouteComponent,
+  beforeLoad: () => {
+    throw redirect({ to: '/' })
+  },
+  component: () => null,
 })
-
-function RouteComponent() {
-  return (
-    <div className="mx-auto mt-10 w-full max-w-md p-6">
-      <SolanaSignInCard />
-    </div>
-  )
-}

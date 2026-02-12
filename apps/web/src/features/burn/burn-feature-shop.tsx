@@ -11,6 +11,7 @@ import { Card, CardContent } from '@/components/ui/card'
 import { Spinner } from '@/components/ui/spinner'
 import { WalletDropdown } from '@/components/wallet-dropdown'
 import { useGameContext } from '@/features/game/data-access/game-provider'
+import { usePendingRewardCount } from '@/features/rewards/data-access/use-pending-reward-count'
 import {
   useBurnPurchase,
   useBurnPurchased,
@@ -61,6 +62,8 @@ function BurnFeatureShopInner() {
 
   const hasBuyAll = purchased?.includes('buy_all') ?? false
   const hasAutoClaim = purchased?.includes('auto_claim') ?? false
+  const pendingRewards = usePendingRewardCount()
+  const canClaimAny = hasAutoClaim && pendingRewards > 0
 
   const isLoading = upgradesLoading || purchasedLoading || balanceLoading
 
@@ -159,16 +162,22 @@ function BurnFeatureShopInner() {
             {hasAutoClaim && (
               <Button
                 variant="outline"
-                className="flex h-auto flex-col gap-2 py-4"
+                className={`flex h-auto flex-col gap-2 py-4 ${!canClaimAny ? 'opacity-50' : ''}`}
                 onClick={handleClaimAll}
-                disabled={claimAllMutation.isPending}
+                disabled={!canClaimAny || claimAllMutation.isPending}
               >
                 {claimAllMutation.isPending ? (
                   <Spinner className="size-7" />
                 ) : (
-                  <LucideGift className="size-7 text-green-500" />
+                  <LucideGift
+                    className={`size-7 ${canClaimAny ? 'text-green-500' : 'text-muted-foreground'}`}
+                  />
                 )}
-                <span className="font-semibold text-sm">Claim All</span>
+                <span
+                  className={`font-semibold text-sm ${canClaimAny ? '' : 'text-muted-foreground'}`}
+                >
+                  Claim All
+                </span>
               </Button>
             )}
           </div>

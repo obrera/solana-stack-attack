@@ -110,7 +110,7 @@ export function GameFeatureIndex() {
             {hasBuyAll && (
               <Button
                 variant="ghost"
-                className="flex flex-1 items-center gap-2 rounded-xl bg-green-500/20 py-3"
+                className={`flex flex-1 items-center gap-2 rounded-xl py-3 ${canAffordAny ? 'bg-green-500/20' : 'bg-muted opacity-50'}`}
                 disabled={!canAffordAny}
                 onClick={() => {
                   const spent = buyAll()
@@ -121,8 +121,12 @@ export function GameFeatureIndex() {
                   }
                 }}
               >
-                <LucideShoppingCart className="size-5 text-green-500" />
-                <span className="font-semibold text-green-500 text-sm">
+                <LucideShoppingCart
+                  className={`size-5 ${canAffordAny ? 'text-green-500' : 'text-muted-foreground'}`}
+                />
+                <span
+                  className={`font-semibold text-sm ${canAffordAny ? 'text-green-500' : 'text-muted-foreground'}`}
+                >
                   Buy All
                 </span>
               </Button>
@@ -130,7 +134,7 @@ export function GameFeatureIndex() {
             {hasAutoClaim && (
               <Button
                 variant="ghost"
-                className="flex flex-1 items-center gap-2 rounded-xl bg-green-500/20 py-3"
+                className={`flex flex-1 items-center gap-2 rounded-xl py-3 ${canClaimAny ? 'bg-green-500/20' : 'bg-muted opacity-50'}`}
                 disabled={!canClaimAny || claimAllMutation.isPending}
                 onClick={() =>
                   claimAllMutation.mutate(undefined, {
@@ -149,9 +153,13 @@ export function GameFeatureIndex() {
                 {claimAllMutation.isPending ? (
                   <Spinner className="size-5" />
                 ) : (
-                  <LucideGift className="size-5 text-green-500" />
+                  <LucideGift
+                    className={`size-5 ${canClaimAny ? 'text-green-500' : 'text-muted-foreground'}`}
+                  />
                 )}
-                <span className="font-semibold text-green-500 text-sm">
+                <span
+                  className={`font-semibold text-sm ${canClaimAny ? 'text-green-500' : 'text-muted-foreground'}`}
+                >
                   Claim All
                 </span>
               </Button>

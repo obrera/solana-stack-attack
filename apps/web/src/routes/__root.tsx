@@ -10,9 +10,10 @@ import {
 import { TanStackRouterDevtools } from '@tanstack/react-router-devtools'
 import { Toaster } from '@/components/ui/sonner'
 import type { orpc } from '@/utils/orpc'
-import Header from '../components/header'
+import { BottomTabs } from '../components/header'
 import { GameProvider } from '../features/game/data-access/game-provider'
 import appCss from '../index.css?url'
+import { authClient } from '../lib/auth-client'
 
 export interface RouterAppContext {
   orpc: typeof orpc
@@ -30,7 +31,7 @@ export const Route = createRootRouteWithContext<RouterAppContext>()({
         content: 'width=device-width, initial-scale=1',
       },
       {
-        title: 'solana-stack-attack',
+        title: 'Stack Attack',
       },
     ],
     links: [
@@ -45,6 +46,9 @@ export const Route = createRootRouteWithContext<RouterAppContext>()({
 })
 
 function RootDocument() {
+  const { data: session } = authClient.useSession()
+  const isAuthenticated = !!session?.user
+
   return (
     <html lang="en" className="dark">
       <head>
@@ -52,14 +56,14 @@ function RootDocument() {
       </head>
       <body>
         <GameProvider>
-          <div className="grid h-svh grid-rows-[auto_1fr]">
-            <Header />
+          <div className={`h-svh ${isAuthenticated ? 'pb-16' : ''}`}>
             <Outlet />
           </div>
+          {isAuthenticated && <BottomTabs />}
         </GameProvider>
         <Toaster richColors />
-        <TanStackRouterDevtools position="bottom-left" />
-        <ReactQueryDevtools position="bottom" buttonPosition="bottom-right" />
+        <TanStackRouterDevtools position="top-left" />
+        <ReactQueryDevtools position="top" buttonPosition="top-right" />
         <Scripts />
       </body>
     </html>
