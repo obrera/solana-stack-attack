@@ -13,6 +13,7 @@ import { Route as TodosRouteImport } from './routes/todos'
 import { Route as SolanaRouteImport } from './routes/solana'
 import { Route as ProfileRouteImport } from './routes/profile'
 import { Route as LoginRouteImport } from './routes/login'
+import { Route as LeaderboardRouteImport } from './routes/leaderboard'
 import { Route as GameRouteImport } from './routes/game'
 import { Route as DashboardRouteImport } from './routes/dashboard'
 import { Route as AiRouteImport } from './routes/ai'
@@ -36,6 +37,11 @@ const ProfileRoute = ProfileRouteImport.update({
 const LoginRoute = LoginRouteImport.update({
   id: '/login',
   path: '/login',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LeaderboardRoute = LeaderboardRouteImport.update({
+  id: '/leaderboard',
+  path: '/leaderboard',
   getParentRoute: () => rootRouteImport,
 } as any)
 const GameRoute = GameRouteImport.update({
@@ -64,6 +70,7 @@ export interface FileRoutesByFullPath {
   '/ai': typeof AiRoute
   '/dashboard': typeof DashboardRoute
   '/game': typeof GameRoute
+  '/leaderboard': typeof LeaderboardRoute
   '/login': typeof LoginRoute
   '/profile': typeof ProfileRoute
   '/solana': typeof SolanaRoute
@@ -74,6 +81,7 @@ export interface FileRoutesByTo {
   '/ai': typeof AiRoute
   '/dashboard': typeof DashboardRoute
   '/game': typeof GameRoute
+  '/leaderboard': typeof LeaderboardRoute
   '/login': typeof LoginRoute
   '/profile': typeof ProfileRoute
   '/solana': typeof SolanaRoute
@@ -85,6 +93,7 @@ export interface FileRoutesById {
   '/ai': typeof AiRoute
   '/dashboard': typeof DashboardRoute
   '/game': typeof GameRoute
+  '/leaderboard': typeof LeaderboardRoute
   '/login': typeof LoginRoute
   '/profile': typeof ProfileRoute
   '/solana': typeof SolanaRoute
@@ -97,6 +106,7 @@ export interface FileRouteTypes {
     | '/ai'
     | '/dashboard'
     | '/game'
+    | '/leaderboard'
     | '/login'
     | '/profile'
     | '/solana'
@@ -107,6 +117,7 @@ export interface FileRouteTypes {
     | '/ai'
     | '/dashboard'
     | '/game'
+    | '/leaderboard'
     | '/login'
     | '/profile'
     | '/solana'
@@ -117,6 +128,7 @@ export interface FileRouteTypes {
     | '/ai'
     | '/dashboard'
     | '/game'
+    | '/leaderboard'
     | '/login'
     | '/profile'
     | '/solana'
@@ -128,6 +140,7 @@ export interface RootRouteChildren {
   AiRoute: typeof AiRoute
   DashboardRoute: typeof DashboardRoute
   GameRoute: typeof GameRoute
+  LeaderboardRoute: typeof LeaderboardRoute
   LoginRoute: typeof LoginRoute
   ProfileRoute: typeof ProfileRoute
   SolanaRoute: typeof SolanaRoute
@@ -162,6 +175,13 @@ declare module '@tanstack/react-router' {
       path: '/login'
       fullPath: '/login'
       preLoaderRoute: typeof LoginRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/leaderboard': {
+      id: '/leaderboard'
+      path: '/leaderboard'
+      fullPath: '/leaderboard'
+      preLoaderRoute: typeof LeaderboardRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/game': {
@@ -200,6 +220,7 @@ const rootRouteChildren: RootRouteChildren = {
   AiRoute: AiRoute,
   DashboardRoute: DashboardRoute,
   GameRoute: GameRoute,
+  LeaderboardRoute: LeaderboardRoute,
   LoginRoute: LoginRoute,
   ProfileRoute: ProfileRoute,
   SolanaRoute: SolanaRoute,
