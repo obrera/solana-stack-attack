@@ -3,6 +3,7 @@ import { burnRouter } from '../features/burn'
 import { gameRouter } from '../features/game'
 import { rewardRouter } from '../features/reward'
 import { protectedProcedure, publicProcedure } from '../index'
+import { feePayerRouter } from './fee-payer'
 import { solanaRouter } from './solana'
 import { todoRouter } from './todo'
 
@@ -17,6 +18,7 @@ export const appRouter = {
     }
   }),
   burn: burnRouter,
+  feePayer: feePayerRouter,
   game: gameRouter,
   reward: rewardRouter,
   solana: solanaRouter,
