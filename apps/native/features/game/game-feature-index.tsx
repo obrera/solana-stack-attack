@@ -1,4 +1,5 @@
 import { Ionicons } from '@expo/vector-icons'
+import { gameFormatNumber } from '@solana-stack-attack/game-util/game-format-number'
 import { Card, useThemeColor } from 'heroui-native'
 import { useEffect, useRef } from 'react'
 import {
@@ -9,7 +10,6 @@ import {
   Text,
   View,
 } from 'react-native'
-
 import {
   useBurnPurchased,
   useClaimAll,
@@ -20,7 +20,6 @@ import { useGameContext } from './data-access/game-provider'
 import { GameUiFloatingText } from './ui/game-ui-floating-text'
 import { GameUiMilestoneModal } from './ui/game-ui-milestone-modal'
 import { GameUiWelcomeModal } from './ui/game-ui-welcome-modal'
-import { gameFormatNumber } from './util/game-format-number'
 
 export function GameFeatureIndex() {
   const {

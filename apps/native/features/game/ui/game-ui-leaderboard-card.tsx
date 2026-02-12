@@ -1,8 +1,7 @@
 import { Ionicons } from '@expo/vector-icons'
+import { gameFormatNumber } from '@solana-stack-attack/game-util/game-format-number'
 import { Card } from 'heroui-native'
 import { Text, View } from 'react-native'
-
-import { gameFormatNumber } from '../util/game-format-number'
 
 interface GameUiLeaderboardCardProps {
   rank: number

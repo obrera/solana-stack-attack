@@ -1,10 +1,9 @@
+import { gameFormatNumber } from '@solana-stack-attack/game-util/game-format-number'
 import { Card, useThemeColor } from 'heroui-native'
 import { ScrollView, Text, View } from 'react-native'
-
 import { UiContainer } from '@/features/ui/ui/ui-container'
 import { useGameContext } from './data-access/game-provider'
 import { GameUiUpgradeCard } from './ui/game-ui-upgrade-card'
-import { gameFormatNumber } from './util/game-format-number'
 
 export function GameFeatureShop() {
   const accentColor = useThemeColor('success')

@@ -1,3 +1,7 @@
+import {
+  gameCheckMilestones,
+  type Milestone,
+} from '@solana-stack-attack/game-util/game-milestones'
 import * as Haptics from 'expo-haptics'
 import {
   createContext,
@@ -9,10 +13,8 @@ import {
   useState,
 } from 'react'
 import { Animated, AppState } from 'react-native'
-
 import { authClient } from '@/features/auth/data-access/auth-client'
 import { client } from '@/features/core/util/core-orpc'
-import { gameCheckMilestones, type Milestone } from '../util/game-milestones'
 import { type OwnedUpgrade, UPGRADES, type Upgrade } from './use-game-upgrades'
 
 export interface FloatingText {

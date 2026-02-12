@@ -25,6 +25,7 @@
     "@solana-stack-attack/api": "workspace:*",
     "@solana-stack-attack/better-auth-solana": "workspace:*",
     "@solana-stack-attack/env": "workspace:*",
+    "@solana-stack-attack/game-util": "workspace:*",
     "@solana-stack-attack/solana-client": "workspace:*",
     "@solana/kit": "catalog:",
     "@stardazed/streams-text-encoding": "^1.0.2",

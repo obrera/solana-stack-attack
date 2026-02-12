@@ -1,8 +1,7 @@
 import { Ionicons } from '@expo/vector-icons'
+import type { Milestone } from '@solana-stack-attack/game-util/game-milestones'
 import { useEffect, useRef } from 'react'
 import { Animated, Modal, Pressable, Text, View } from 'react-native'
-
-import type { Milestone } from '../util/game-milestones'
 
 interface GameUiMilestoneModalProps {
   milestone: Milestone | null
