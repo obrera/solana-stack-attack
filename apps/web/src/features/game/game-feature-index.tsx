@@ -2,11 +2,10 @@ import { GameUiEnergyBar } from '@solana-stack-attack/game-ui-web/game-ui-energy
 import { GameUiFloatingText } from '@solana-stack-attack/game-ui-web/game-ui-floating-text'
 import { GameUiStats } from '@solana-stack-attack/game-ui-web/game-ui-stats'
 import { GameUiTapButton } from '@solana-stack-attack/game-ui-web/game-ui-tap-button'
-import { GameUiUpgradeList } from '@solana-stack-attack/game-ui-web/game-ui-upgrade-list'
 import { gameFormatNumber } from '@solana-stack-attack/game-util/game-format-number'
 import { useGameContext } from './data-access/game-provider'
 
-export function GameFeature() {
+export function GameFeatureIndex() {
   const { state, floatingTexts } = useGameContext()
 
   if (state.isLoading) {
@@ -47,11 +46,6 @@ export function GameFeature() {
         </div>
 
         <GameUiStats />
-      </div>
-
-      {/* Upgrades Panel */}
-      <div className="w-full max-w-sm lg:mt-12">
-        <GameUiUpgradeList />
       </div>
     </div>
   )

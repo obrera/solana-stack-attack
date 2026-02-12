@@ -1,9 +1,9 @@
 import { createFileRoute, redirect } from '@tanstack/react-router'
 
-import { GameFeatureIndex } from '@/features/game/game-feature-index'
+import { GameFeatureShop } from '@/features/game/game-feature-shop'
 import { getUser } from '@/functions/get-user'
 
-export const Route = createFileRoute('/game')({
+export const Route = createFileRoute('/shop')({
   component: RouteComponent,
   beforeLoad: async () => {
     const session = await getUser()
@@ -14,5 +14,5 @@ export const Route = createFileRoute('/game')({
 })
 
 function RouteComponent() {
-  return <GameFeatureIndex />
+  return <GameFeatureShop />
 }

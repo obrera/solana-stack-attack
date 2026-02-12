@@ -1,6 +1,5 @@
 import { createFileRoute, redirect } from '@tanstack/react-router'
 
-import { GameProvider } from '@/features/game/data-access/game-provider'
 import { ProfileFeature } from '@/features/profile/profile-feature'
 import { getUser } from '@/functions/get-user'
 
@@ -15,9 +14,5 @@ export const Route = createFileRoute('/profile')({
 })
 
 function RouteComponent() {
-  return (
-    <GameProvider>
-      <ProfileFeature />
-    </GameProvider>
-  )
+  return <ProfileFeature />
 }
