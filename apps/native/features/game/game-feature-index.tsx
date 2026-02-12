@@ -1,5 +1,6 @@
 import { Ionicons } from '@expo/vector-icons'
 import { Card, useThemeColor } from 'heroui-native'
+import { useEffect, useRef } from 'react'
 import { Animated, Pressable, Text, View } from 'react-native'
 
 import { UiContainer } from '@/features/ui/ui/ui-container'
@@ -19,25 +20,40 @@ export function GameFeatureIndex() {
     dismissCelebration,
   } = useGameContext()
   const accentColor = useThemeColor('success')
-  const mutedColor = useThemeColor('muted')
+  const warningColor = useThemeColor('warning')
+  const dangerColor = useThemeColor('danger')
 
-  function formatLastSaved(date: Date | null): string {
-    if (!date) {
-      return 'Not saved yet'
+  const energyPercent = state.maxEnergy > 0 ? state.energy / state.maxEnergy : 0
+  const energyBarColor =
+    energyPercent < 0.1
+      ? dangerColor
+      : energyPercent < 0.3
+        ? warningColor
+        : accentColor
+
+  // Pulsing animation for "TAP TO RECHARGE!" message
+  const pulseAnim = useRef(new Animated.Value(1)).current
+  useEffect(() => {
+    if (state.energy <= 0) {
+      const animation = Animated.loop(
+        Animated.sequence([
+          Animated.timing(pulseAnim, {
+            toValue: 0.3,
+            duration: 600,
+            useNativeDriver: true,
+          }),
+          Animated.timing(pulseAnim, {
+            toValue: 1,
+            duration: 600,
+            useNativeDriver: true,
+          }),
+        ]),
+      )
+      animation.start()
+      return () => animation.stop()
     }
-    const seconds = Math.floor((Date.now() - date.getTime()) / 1000)
-    if (seconds < 5) {
-      return 'Just now'
-    }
-    if (seconds < 60) {
-      return `${seconds}s ago`
-    }
-    const minutes = Math.floor(seconds / 60)
-    if (minutes < 60) {
-      return `${minutes}m ago`
-    }
-    return date.toLocaleTimeString()
-  }
+    pulseAnim.setValue(1)
+  }, [state.energy, pulseAnim])
 
   return (
     <UiContainer className="flex-1">
@@ -55,27 +71,26 @@ export function GameFeatureIndex() {
         onDismiss={dismissCelebration}
       />
 
-      {/* Save Status Bar */}
-      <View className="flex-row items-center justify-center gap-2 pt-12 pb-2">
-        {state.isSaving ? (
-          <>
-            <Ionicons name="cloud-upload" size={14} color={mutedColor} />
-            <Text className="text-muted text-xs">Saving...</Text>
-          </>
-        ) : state.lastSavedAt ? (
-          <>
-            <Ionicons name="cloud-done" size={14} color={accentColor} />
+      {/* Energy Bar */}
+      {state.pointsPerSecond > 0 && (
+        <View className="mx-6 mt-1">
+          <View className="mb-1 flex-row items-center justify-between">
+            <Text className="text-muted text-xs">⚡ Energy</Text>
             <Text className="text-muted text-xs">
-              Saved {formatLastSaved(state.lastSavedAt)}
+              {state.energy}/{state.maxEnergy}
             </Text>
-          </>
-        ) : (
-          <>
-            <Ionicons name="cloud-offline" size={14} color={mutedColor} />
-            <Text className="text-muted text-xs">Not saved yet</Text>
-          </>
-        )}
-      </View>
+          </View>
+          <View className="h-3 w-full overflow-hidden rounded-full bg-black/20">
+            <View
+              style={{
+                width: `${energyPercent * 100}%`,
+                backgroundColor: energyBarColor,
+              }}
+              className="h-full rounded-full"
+            />
+          </View>
+        </View>
+      )}
 
       <View className="flex-1 items-center justify-center p-6">
         {/* Score Display */}
@@ -86,25 +101,69 @@ export function GameFeatureIndex() {
           </Text>
           <Text className="mt-2 text-muted text-sm">
             +{state.pointsPerTap} per tap
-            {state.pointsPerSecond > 0 && ` · +${state.pointsPerSecond}/s`}
+            {state.pointsPerSecond > 0 &&
+              (state.energy > 0
+                ? ` · +${state.pointsPerSecond}/s`
+                : ' · ⚡ auto-tappers paused')}
           </Text>
         </View>
+
+        {/* Energy warning / recharge prompt */}
+        {state.pointsPerSecond > 0 && state.energy <= 0 && (
+          <Animated.View
+            style={{ opacity: pulseAnim }}
+            className="mb-4 rounded-xl bg-danger/20 px-6 py-3"
+          >
+            <Text className="text-center font-bold text-danger text-lg">
+              ⚡ TAP TO RECHARGE!
+            </Text>
+          </Animated.View>
+        )}
+        {state.pointsPerSecond > 0 &&
+          state.energy > 0 &&
+          energyPercent < 0.3 && (
+            <View className="mb-4">
+              <Text className="text-center font-semibold text-sm text-warning">
+                ⚡ Energy low — keep tapping!
+              </Text>
+            </View>
+          )}
 
         {/* Tap Button */}
         <Animated.View style={{ transform: [{ scale: scaleAnim }] }}>
           <Pressable
             onPress={handleTap}
-            style={{ borderColor: accentColor }}
+            style={{
+              borderColor:
+                state.pointsPerSecond > 0 && state.energy <= 0
+                  ? dangerColor
+                  : accentColor,
+            }}
             className="relative h-[200px] w-[200px] overflow-visible rounded-full border-4 bg-black/10"
           >
             {/* Center content absolutely */}
             <View className="absolute inset-0 items-center justify-center">
-              <Ionicons name="diamond" size={80} color={accentColor} />
+              <Ionicons
+                name="diamond"
+                size={80}
+                color={
+                  state.pointsPerSecond > 0 && state.energy <= 0
+                    ? dangerColor
+                    : accentColor
+                }
+              />
               <Text
-                style={{ color: accentColor }}
+                style={{
+                  color:
+                    state.pointsPerSecond > 0 && state.energy <= 0
+                      ? dangerColor
+                      : accentColor,
+                }}
                 className="font-bold text-xl"
               >
-                TAP!
+                {state.energy <= 0 && state.pointsPerSecond > 0
+                  ? 'RECHARGE!'
+                  : 'TAP!'}
               </Text>
             </View>
 

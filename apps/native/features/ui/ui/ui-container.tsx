@@ -22,6 +22,7 @@ export function UiContainer({
       className={cn('flex-1 bg-background', className)}
       style={{
         paddingBottom: insets.bottom,
+        paddingTop: insets.top,
       }}
       {...props}
     >

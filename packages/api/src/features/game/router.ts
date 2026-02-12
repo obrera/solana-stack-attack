@@ -92,6 +92,8 @@ export const gameRouter = {
         ownedUpgrades: z.array(ownedUpgradeSchema),
         pointsPerSecond: z.number().int().min(0),
         achievedMilestones: z.array(z.string()).optional(),
+        energy: z.number().int().min(0).max(100).optional(),
+        maxEnergy: z.number().int().min(0).max(100).optional(),
       }),
     )
     .handler(async ({ context, input }) => {
@@ -115,6 +117,8 @@ export const gameRouter = {
             ownedUpgrades: input.ownedUpgrades,
             pointsPerSecond: input.pointsPerSecond,
             achievedMilestones: milestones,
+            energy: input.energy ?? 100,
+            maxEnergy: input.maxEnergy ?? 100,
             lastActiveAt: new Date(),
           })
           .where(eq(gameState.userId, userId))
@@ -137,6 +141,8 @@ export const gameRouter = {
           ownedUpgrades: input.ownedUpgrades,
           pointsPerSecond: input.pointsPerSecond,
           achievedMilestones: milestones,
+          energy: input.energy ?? 100,
+          maxEnergy: input.maxEnergy ?? 100,
           lastActiveAt: new Date(),
         })
         .returning()

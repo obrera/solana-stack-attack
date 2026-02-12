@@ -25,6 +25,9 @@ export const gameState = sqliteTable(
       .notNull(),
     // Points earned per second from auto-tappers (cached for offline calc)
     pointsPerSecond: integer('points_per_second').default(0).notNull(),
+    // Energy system: auto-tappers drain energy, tapping recharges it
+    energy: integer('energy').default(100).notNull(),
+    maxEnergy: integer('max_energy').default(100).notNull(),
     // Last time user was active (for offline earnings calculation)
     lastActiveAt: integer('last_active_at', { mode: 'timestamp_ms' })
       .default(sql`(cast(unixepoch('subsecond') * 1000 as integer))`)

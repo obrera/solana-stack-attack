@@ -5,17 +5,21 @@ import { View } from 'react-native'
 
 import { AuthFeatureGuard } from '@/features/auth/auth-feature-guard'
 import { useGameContext } from '@/features/game/data-access/game-provider'
+import { useSaveStatus } from '@/features/profile/profile-feature'
 import { usePendingRewardCount } from '@/features/rewards/data-access/use-pending-reward-count'
 
 function TabsLayout() {
   const foregroundColor = useThemeColor('foreground')
   const backgroundColor = useThemeColor('background')
   const accentColor = useThemeColor('success')
+  const warningColor = useThemeColor('warning')
+  const dangerColor = useThemeColor('danger')
   const mutedColor = useThemeColor('muted')
 
   const { upgrades, canAfford } = useGameContext()
   const canAffordAnyUpgrade = upgrades.some((u) => canAfford(u.id))
   const pendingRewardCount = usePendingRewardCount()
+  const saveStatus = useSaveStatus()
 
   return (
     <Tabs
@@ -70,17 +74,28 @@ function TabsLayout() {
         name="profile"
         options={{
           title: 'Profile',
-          tabBarIcon: ({ color, size }) => (
-            <View>
-              <Ionicons name="person" size={size} color={color} />
-              {pendingRewardCount > 0 && (
-                <View
-                  style={{ backgroundColor: accentColor }}
-                  className="absolute -top-1 -right-1 h-3 w-3 rounded-full"
-                />
-              )}
-            </View>
-          ),
+          tabBarIcon: ({ color, size }) => {
+            const badgeColor =
+              pendingRewardCount > 0
+                ? accentColor
+                : saveStatus.color === 'danger'
+                  ? dangerColor
+                  : saveStatus.color === 'warning'
+                    ? warningColor
+                    : null
+
+            return (
+              <View>
+                <Ionicons name="person" size={size} color={color} />
+                {badgeColor && (
+                  <View
+                    style={{ backgroundColor: badgeColor }}
+                    className="absolute -top-1 -right-1 h-3 w-3 rounded-full"
+                  />
+                )}
+              </View>
+            )
+          },
         }}
       />
     </Tabs>

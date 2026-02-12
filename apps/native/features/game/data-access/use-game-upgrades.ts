@@ -30,7 +30,7 @@ export const UPGRADES: Upgrade[] = [
     name: 'Double Tap',
     description: '+1 point per tap',
     icon: 'finger-print',
-    baseCost: 50,
+    baseCost: 25,
     costMultiplier: 2.0, // was 1.5 — steeper scaling
     effect: { type: 'tap_multiplier', value: 1 },
   },

@@ -31,7 +31,7 @@ export function GameFeatureLeaderboard() {
     <UiContainer className="flex-1">
       <ScrollView className="flex-1 p-4">
         {/* Header */}
-        <View className="mb-6 items-center pt-12">
+        <View className="mb-6 items-center">
           <Ionicons name="trophy" size={48} color={warningColor} />
           <Text className="mt-2 font-bold text-2xl text-foreground">
             Leaderboard
