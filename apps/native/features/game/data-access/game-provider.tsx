@@ -52,6 +52,8 @@ interface GameContextValue {
   getUpgradeLevel: (upgradeId: string) => number
   canAfford: (upgradeId: string) => boolean
   buyUpgrade: (upgradeId: string) => boolean
+  buyAll: () => number
+  refillEnergy: () => void
   // Persistence
   saveGame: () => Promise<void>
   // Offline earnings
@@ -108,6 +110,9 @@ export function GameProvider({ children }: { children: ReactNode }) {
   const [floatingTexts, setFloatingTexts] = useState<FloatingText[]>([])
   const floatingIdRef = useRef(0)
 
+  // Burn upgrades (premium STACK upgrades)
+  const [burnUpgrades, setBurnUpgrades] = useState<string[]>([])
+
   // Get session for auth check
   const { data: session } = authClient.useSession()
   const isAuthenticated = !!session?.user
@@ -124,6 +129,21 @@ export function GameProvider({ children }: { children: ReactNode }) {
     }
     fetchMilestones()
   }, [])
+
+  // Load burn upgrades on mount (if authenticated)
+  useEffect(() => {
+    if (!isAuthenticated) return
+
+    const loadBurns = async () => {
+      try {
+        const purchased = await client.burn.purchased()
+        setBurnUpgrades(purchased)
+      } catch (error) {
+        console.error('[Game] Failed to load burn upgrades:', error)
+      }
+    }
+    loadBurns()
+  }, [isAuthenticated])
 
   // Load game state on mount (if authenticated)
   useEffect(() => {
@@ -278,6 +298,13 @@ export function GameProvider({ children }: { children: ReactNode }) {
     [getUpgradeLevel],
   )
 
+  // Check burn upgrade ownership
+  const hasBurnUpgrade = (id: string) => burnUpgrades.includes(id)
+
+  // Effective max energy (boosted by Energy Surge burn upgrade)
+  const effectiveMaxEnergy =
+    maxEnergy + (hasBurnUpgrade('energy_surge') ? 50 : 0)
+
   const pointsPerTap = (() => {
     let total = 1
     for (const owned of ownedUpgrades) {
@@ -285,6 +312,10 @@ export function GameProvider({ children }: { children: ReactNode }) {
       if (upgrade?.effect.type === 'tap_multiplier') {
         total += upgrade.effect.value * owned.level
       }
+    }
+    // Golden Touch burn upgrade: +50 per tap
+    if (hasBurnUpgrade('golden_touch')) {
+      total += 50
     }
     return total
   })()
@@ -380,6 +411,11 @@ export function GameProvider({ children }: { children: ReactNode }) {
     setPendingCelebration(null)
   }, [])
 
+  // Diamond Hands multiplier (1.1x when owned)
+  const scoreMultiplier = hasBurnUpgrade('diamond_hands') ? 1.1 : 1.0
+  // Auto-Pilot: auto-tappers run at 50% even at 0 energy
+  const hasAutoPilot = hasBurnUpgrade('auto_pilot')
+
   // Auto-tapper interval (drains energy, stops producing when energy = 0)
   useEffect(() => {
     if (pointsPerSecond <= 0) {
@@ -389,24 +425,31 @@ export function GameProvider({ children }: { children: ReactNode }) {
     const interval = setInterval(() => {
       setEnergy((prevEnergy) => {
         if (prevEnergy <= 0) {
+          // Auto-Pilot: produce at 50% speed even with no energy
+          if (hasAutoPilot) {
+            const earned = Math.floor(pointsPerSecond * 0.5 * scoreMultiplier)
+            setScore((prev) => prev + earned)
+          }
           return 0
         }
         // Energy > 0: produce points and drain energy
-        setScore((prev) => prev + pointsPerSecond)
+        const earned = Math.floor(pointsPerSecond * scoreMultiplier)
+        setScore((prev) => prev + earned)
         return Math.max(0, prevEnergy - 1)
       })
     }, 1000)
 
     return () => clearInterval(interval)
-  }, [pointsPerSecond])
+  }, [pointsPerSecond, scoreMultiplier, hasAutoPilot])
 
   const handleTap = useCallback(
     (event: { nativeEvent: { locationX: number; locationY: number } }) => {
       Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light)
 
-      setScore((prev) => prev + pointsPerTap)
+      const earned = Math.floor(pointsPerTap * scoreMultiplier)
+      setScore((prev) => prev + earned)
       setTotalTaps((prev) => prev + 1)
-      setEnergy((prev) => Math.min(maxEnergy, prev + 5))
+      setEnergy((prev) => Math.min(effectiveMaxEnergy, prev + 5))
 
       Animated.sequence([
         Animated.timing(scaleAnim, {
@@ -425,14 +468,14 @@ export function GameProvider({ children }: { children: ReactNode }) {
       const { locationX, locationY } = event.nativeEvent
       setFloatingTexts((prev) => [
         ...prev,
-        { id, x: locationX, y: locationY, value: pointsPerTap },
+        { id, x: locationX, y: locationY, value: earned },
       ])
 
       setTimeout(() => {
         setFloatingTexts((prev) => prev.filter((t) => t.id !== id))
       }, 500)
     },
-    [pointsPerTap, scaleAnim, maxEnergy],
+    [pointsPerTap, scoreMultiplier, scaleAnim, effectiveMaxEnergy],
   )
 
   const canAfford = useCallback(
@@ -464,6 +507,41 @@ export function GameProvider({ children }: { children: ReactNode }) {
     [score, getUpgradeCost],
   )
 
+  // Buy all affordable upgrades, starting from most expensive
+  const buyAll = useCallback((): number => {
+    let totalSpent = 0
+    let bought = true
+    while (bought) {
+      bought = false
+      // Sort by cost descending, buy most expensive first
+      const sorted = [...UPGRADES].sort((a, b) => {
+        const costA = getUpgradeCost(a.id)
+        const costB = getUpgradeCost(b.id)
+        return costB - costA
+      })
+      for (const upgrade of sorted) {
+        const cost = getUpgradeCost(upgrade.id)
+        if (score - totalSpent >= cost) {
+          // Use buyUpgrade which handles state
+          if (buyUpgrade(upgrade.id)) {
+            totalSpent += cost
+            bought = true
+          }
+        }
+      }
+    }
+    if (totalSpent > 0) {
+      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success)
+    }
+    return totalSpent
+  }, [score, getUpgradeCost, buyUpgrade])
+
+  // Refill energy to max (called after fuel cell burn)
+  const refillEnergy = useCallback(() => {
+    setEnergy(effectiveMaxEnergy)
+    Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success)
+  }, [effectiveMaxEnergy])
+
   const level = Math.floor(totalTaps / 100) + 1
 
   const dismissOfflineEarnings = useCallback(() => {
@@ -484,7 +562,7 @@ export function GameProvider({ children }: { children: ReactNode }) {
       achievedMilestones,
       pendingCelebration,
       energy,
-      maxEnergy,
+      maxEnergy: effectiveMaxEnergy,
     },
     scaleAnim,
     floatingTexts,
@@ -495,6 +573,8 @@ export function GameProvider({ children }: { children: ReactNode }) {
     getUpgradeLevel,
     canAfford,
     buyUpgrade,
+    buyAll,
+    refillEnergy,
     saveGame: doSave,
     dismissOfflineEarnings,
     milestones,

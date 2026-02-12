@@ -1,4 +1,5 @@
 import type { RouterClient } from '@orpc/server'
+import { burnRouter } from '../features/burn'
 import { gameRouter } from '../features/game'
 import { rewardRouter } from '../features/reward'
 import { protectedProcedure, publicProcedure } from '../index'
@@ -15,6 +16,7 @@ export const appRouter = {
       user: context.session?.user,
     }
   }),
+  burn: burnRouter,
   game: gameRouter,
   reward: rewardRouter,
   solana: solanaRouter,

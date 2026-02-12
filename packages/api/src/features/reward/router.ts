@@ -142,4 +142,59 @@ export const rewardRouter = {
         displayAmount: updated.amount / 10 ** TOKEN_CONFIG.decimals,
       }
     }),
+
+  // Claim all pending rewards in one batch
+  claimAll: protectedProcedure.handler(async ({ context }) => {
+    const userId = context.session.user.id
+
+    // Get all pending rewards
+    const pendingRewards = await db
+      .select()
+      .from(reward)
+      .where(and(eq(reward.userId, userId), eq(reward.status, 'pending')))
+
+    if (pendingRewards.length === 0) {
+      return { claimed: 0, totalAmount: 0, displayTotalAmount: 0 }
+    }
+
+    // Get user's wallet
+    const [wallet] = await db
+      .select()
+      .from(walletAddress)
+      .where(eq(walletAddress.userId, userId))
+      .limit(1)
+
+    if (!wallet) {
+      throw new ORPCError('BAD_REQUEST', {
+        message: 'No wallet address found. Please connect a wallet first.',
+      })
+    }
+
+    // Calculate total and transfer in one transaction
+    const totalAmount = pendingRewards.reduce((sum, r) => sum + r.amount, 0)
+
+    const txSignature = await transferToken(context.solana, {
+      amount: BigInt(totalAmount),
+      decimals: TOKEN_CONFIG.decimals,
+      feePayer: context.feePayer,
+      mint: env.TOKEN_MINT_ADDRESS as Address,
+      recipient: wallet.address as Address,
+    })
+
+    invalidateBalanceCache(userId)
+
+    // Mark all as claimed
+    for (const r of pendingRewards) {
+      await db
+        .update(reward)
+        .set({ claimedAt: new Date(), status: 'claimed', txSignature })
+        .where(eq(reward.id, r.id))
+    }
+
+    return {
+      claimed: pendingRewards.length,
+      totalAmount,
+      displayTotalAmount: totalAmount / 10 ** TOKEN_CONFIG.decimals,
+    }
+  }),
 }

@@ -9,6 +9,7 @@ interface GameUiLeaderboardCardProps {
   name: string
   score: number
   totalTaps: number
+  displayTotalBurned?: number
   isCurrentUser: boolean
   accentColor: string
   mutedColor: string
@@ -19,6 +20,7 @@ export function GameUiLeaderboardCard({
   name,
   score,
   totalTaps,
+  displayTotalBurned,
   isCurrentUser,
   accentColor,
   mutedColor,
@@ -90,6 +92,12 @@ export function GameUiLeaderboardCard({
           </View>
           <Text className="text-muted text-sm">
             {gameFormatNumber(totalTaps)} taps
+            {displayTotalBurned != null && displayTotalBurned > 0 && (
+              <Text className="text-muted text-sm">
+                {' '}
+                · 🔥 {gameFormatNumber(displayTotalBurned)}
+              </Text>
+            )}
           </Text>
         </View>
 
