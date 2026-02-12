@@ -7,7 +7,6 @@
     "typescript": "catalog:"
   },
   "exports": {
-    ".": "./src/index.tsx",
     "./*": "./src/*.tsx"
   },
   "name": "@solana-stack-attack/game-ui-web",
@@ -20,5 +19,9 @@
     "check-types": "tsc --noEmit"
   },
   "type": "module",
-  "version": "0.0.0"
+  "version": "0.0.0",
+  "dependencies": {
+    "@solana-stack-attack/game-data-access": "workspace:*",
+    "@solana-stack-attack/game-util": "workspace:*"
+  }
 }

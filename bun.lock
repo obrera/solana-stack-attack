@@ -125,6 +125,9 @@
         "@solana-stack-attack/api": "workspace:*",
         "@solana-stack-attack/auth": "workspace:*",
         "@solana-stack-attack/env": "workspace:*",
+        "@solana-stack-attack/game-data-access": "workspace:*",
+        "@solana-stack-attack/game-ui-web": "workspace:*",
+        "@solana-stack-attack/game-util": "workspace:*",
         "@solana-stack-attack/solana-client": "workspace:*",
         "@solana/kit": "catalog:",
         "@solana/react": "^6.0.0",
@@ -293,6 +296,10 @@
     "packages/game-ui-web": {
       "name": "@solana-stack-attack/game-ui-web",
       "version": "0.0.0",
+      "dependencies": {
+        "@solana-stack-attack/game-data-access": "workspace:*",
+        "@solana-stack-attack/game-util": "workspace:*",
+      },
       "devDependencies": {
         "@solana-stack-attack/config": "workspace:*",
         "@types/bun": "catalog:",

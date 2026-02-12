@@ -116,6 +116,21 @@
   --radius-4xl: calc(var(--radius) + 16px);
 }
 
+@keyframes float {
+  0% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(-40px);
+  }
+}
+
+@utility animate-float {
+  animation: float 0.5s ease-out forwards;
+}
+
 @layer base {
   * {
     @apply border-border outline-ring/50;
