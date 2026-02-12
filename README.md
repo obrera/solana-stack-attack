@@ -1,186 +1,169 @@
-# Solana Mobile Stack
+# Solana Stack Attack ⚡🎮
 
-A full-stack starter kit for building mobile apps on Solana. Built with Expo, React Native, and modern TypeScript tooling.
+A tap-to-earn mobile game built on Solana that rewards players with real tokens for hitting milestones. Built for the [Colosseum Agent Hackathon](https://colosseum.com/agent-hackathon).
 
-## What's Included
+**[Play now →](https://stack.colmena.dev)** | **[API →](https://stack-api.colmena.dev)**
 
-- **Mobile App** — React Native with Expo, wallet integration via Mobile Wallet Adapter
-- **Web App** — React with TanStack Start for SSR
-- **Backend** — Hono server with oRPC for type-safe APIs
-- **Database** — SQLite/Turso with Drizzle ORM
-- **Auth** — Better-Auth with Sign in with Solana
-- **AI Chat** — Optional Google Gemini integration
+## The Game
+
+Tap the screen. Earn points. Buy upgrades. Climb the leaderboard. Hit milestones and get airdropped **STACK tokens** to your Solana wallet — no bridging, no claiming, just rewards landing in your wallet.
+
+### Core Loop
+
+1. **Tap** — each tap earns points (boosted by upgrades)
+2. **Upgrade** — spend points on tap power, auto-clickers, and multipliers
+3. **Earn offline** — your auto-clickers keep working while you're away
+4. **Hit milestones** — unlock achievements and earn STACK token airdrops
+5. **Compete** — climb the global leaderboard
+
+### Token Rewards
+
+Players earn **STACK** (Token-2022 on Solana devnet) for hitting milestones:
+
+| Milestone | Reward |
+|-----------|--------|
+| First 1,000 taps | 100 STACK |
+| Score reaches 10,000 | 500 STACK |
+| Score reaches 100,000 | 2,500 STACK |
+| Score reaches 1,000,000 | 10,000 STACK |
+| All upgrades purchased | 25,000 STACK |
+| All achievements unlocked | 100,000 STACK |
+
+Token mint: [`8KLh3dLFgCKVkcQpgQep6e2d678uE49VdLpRcyDCWaxV`](https://explorer.solana.com/address/8KLh3dLFgCKVkcQpgQep6e2d678uE49VdLpRcyDCWaxV?cluster=devnet) (Token-2022 with on-chain metadata)
+
+## Sign In With Solana
+
+No emails, no passwords. Connect your Solana wallet, sign a message, and you're in. Your wallet address **is** your identity — game progress, leaderboard rank, and token rewards are all tied to it.
+
+Powered by [Better Auth](https://www.better-auth.com/) with a custom SIWS plugin built for this project.
 
 ## Tech Stack
 
 | Layer | Technology |
 |-------|------------|
-| Runtime | Bun |
-| Mobile | React Native, Expo |
+| Mobile | React Native, Expo, Mobile Wallet Adapter |
 | Web | React, TanStack Start |
-| Server | Hono, oRPC |
-| Database | SQLite/Turso, Drizzle |
-| Solana | @solana/kit, @wallet-ui/react-native-kit |
-| Styling | TailwindCSS, heroui-native |
+| Server | Bun, Hono, oRPC |
+| Database | SQLite / Turso, Drizzle ORM |
+| Auth | Better Auth + Sign In With Solana |
+| Solana | `@solana/kit`, Token-2022, `@wallet-ui/react-native-kit` |
+| Styling | TailwindCSS, HeroUI Native |
 | Monorepo | Turborepo |
 
-## Prerequisites
+### Architecture
 
-- [Bun](https://bun.sh) (v1.0+)
-- [Docker](https://docker.com) (for local database)
-- Android Studio with an emulator, or a physical Android device
-
-## Getting Started
-
-### 1. Clone and Install
-
-```bash
-git clone https://github.com/obrera/solana-stack-attack.git
-cd solana-stack-attack
-bun install
+```
+┌─────────────┐   ┌─────────────┐
+│  Native App │   │   Web App   │
+│  (Expo/RN)  │   │ (TanStack)  │
+└──────┬──────┘   └──────┬──────┘
+       │                 │
+       └────────┬────────┘
+                │ oRPC (type-safe)
+         ┌──────┴──────┐
+         │  Hono Server │
+         │    (Bun)     │
+         └──┬───────┬───┘
+            │       │
+     ┌──────┴──┐ ┌──┴────────┐
+     │  Turso  │ │  Solana   │
+     │ (SQLite)│ │  Devnet   │
+     └─────────┘ └───────────┘
 ```
 
-### 2. Set Up the Database
-
-Start the local database:
-
-```bash
-bun run db:up
-```
-
-This starts a LibSQL server on port 8080. Add `-d` to run in the background: `bun run db:up -- -d`
-
-Copy the environment file:
-
-```bash
-cp apps/server/.env.example apps/server/.env
-```
-
-Generate a secure auth secret and update the `.env` file:
-
-```bash
-openssl rand -hex 32
-```
-
-Push the schema:
-
-```bash
-bun run db:push
-```
-
-### 3. Start the Server and Web App
-
-```bash
-bun run dev
-```
-
-This starts:
-- Web app at http://localhost:3001
-- API server at http://localhost:3000
-
-### 4. Build and Run the Mobile App
-
-The mobile app requires a native build (it won't run in Expo Go due to native dependencies).
-
-In a separate terminal:
-
-```bash
-cd apps/native
-bun run android
-```
-
-This builds the app and installs it on your connected device or emulator. Subsequent runs will be faster as they use the cached build.
-
-## Wallet Support
-
-The app uses Mobile Wallet Adapter to connect to Solana wallets. Supported wallets include:
-
-- **Seeker Wallet** (built-in on Solana Seeker devices)
-- Phantom
-- Solflare
-- Backpack
-- Jupiter
-
-On the emulator, install a wallet app from the Play Store to test wallet connections.
+The app runs on **both mobile and web** from a shared codebase. The native app uses Mobile Wallet Adapter for on-device wallet connections; the web app connects via browser wallet extensions.
 
 ## Project Structure
 
 ```
 solana-stack-attack/
 ├── apps/
-│   ├── native/      # Mobile app (React Native, Expo)
-│   ├── web/         # Web app (React, TanStack Start)
-│   └── server/      # API server (Hono, oRPC)
+│   ├── native/          # Mobile app (React Native + Expo)
+│   │   └── features/    # Feature-based architecture
+│   │       ├── auth/    # SIWS authentication
+│   │       ├── game/    # Core tap game, shop, leaderboard
+│   │       ├── profile/ # Player profile with wallet address
+│   │       └── solana/  # Wallet connection + balance display
+│   ├── web/             # Web app (TanStack Start)
+│   └── server/          # API server (Hono + oRPC)
 ├── packages/
-│   ├── api/         # Shared API routes and business logic
-│   ├── auth/        # Authentication configuration
-│   ├── db/          # Database schema and queries
-│   ├── env/         # Environment variable validation
-│   └── solana-client/  # Solana RPC client utilities
+│   ├── api/             # Shared API routes + game logic
+│   ├── auth/            # Auth configuration
+│   ├── better-auth-solana/  # Custom SIWS plugin
+│   ├── db/              # Database schema (Drizzle)
+│   ├── env/             # Environment validation
+│   └── solana-client/   # Solana RPC, token ops, fee payer
 ```
 
-## Environment Variables
+## Getting Started
 
-Edit `apps/server/.env` to configure the server:
+### Prerequisites
 
-| Variable                       | Description                                                      | Default                                            |
-|--------------------------------|------------------------------------------------------------------|----------------------------------------------------|
-| `BETTER_AUTH_SECRET`           | Auth secret (min 32 chars). Generate with `openssl rand -hex 32` | —                                                  |
-| `BETTER_AUTH_URL`              | Server URL for auth callbacks                                    | `http://localhost:3000`                            |
-| `CORS_ORIGINS`                 | Comma-separated list of allowed origins for CORS                 | `http://localhost:3001,solana-stack-attack://`     |
-| `DATABASE_URL`                 | Database connection URL                                          | `http://localhost:8080`                            |
-| `DATABASE_AUTH_TOKEN`          | Database auth token                                              | `local`                                            |
-| `SOLANA_RPC_URL`               | Solana RPC endpoint                                              | `https://api.devnet.solana.com`                    |
-| `GOOGLE_GENERATIVE_AI_API_KEY` | Optional. Enables AI chat feature                                | —                                                  |
+- [Bun](https://bun.sh) (v1.0+)
+- [Docker](https://docker.com) (for local database)
+- Android Studio with emulator, or a physical Android device
 
-## Enabling AI Chat (Optional)
+### Setup
 
-The app includes an AI chat feature powered by Google Gemini. To enable it:
+```bash
+# Clone and install
+git clone https://github.com/beeman/solana-stack-attack.git
+cd solana-stack-attack
+bun install
 
-1. Go to [Google AI Studio](https://aistudio.google.com/apikey)
-2. Click "Create API Key"
-3. Copy the key and add it to `apps/server/.env`:
-   ```
-   GOOGLE_GENERATIVE_AI_API_KEY=your-api-key-here
-   ```
-4. Restart the server
+# Start the database
+bun run db:up
+
+# Configure environment
+cp apps/server/.env.example apps/server/.env
+# Edit .env — generate BETTER_AUTH_SECRET with: openssl rand -hex 32
+
+# Push database schema
+bun run db:push
+
+# Start server + web app
+bun run dev
+
+# In a separate terminal — build and run mobile app
+cd apps/native
+bun run android
+```
+
+### Environment Variables
+
+| Variable | Description | Default |
+|----------|-------------|---------|
+| `BETTER_AUTH_SECRET` | Auth secret (min 32 chars) | — |
+| `BETTER_AUTH_URL` | Server URL for auth callbacks | `http://localhost:3000` |
+| `CORS_ORIGINS` | Allowed origins (comma-separated) | `http://localhost:3001,solana-stack-attack://` |
+| `DATABASE_URL` | Database connection URL | `http://localhost:8080` |
+| `SOLANA_RPC_URL` | Solana RPC endpoint | `https://api.devnet.solana.com` |
+| `FEE_PAYER_KEYPAIR` | JSON keypair for token airdrops | — |
+| `TOKEN_MINT_ADDRESS` | STACK token mint address | — |
+
+## Wallet Support
+
+- **Seeker Wallet** (built-in on Solana Seeker)
+- Phantom
+- Solflare
+- Backpack
+- Jupiter
 
 ## Available Scripts
 
-From the project root:
-
 | Command | Description |
 |---------|-------------|
-| `bun run dev` | Start all apps in development mode |
-| `bun run dev:native` | Start only the mobile app dev server |
-| `bun run dev:web` | Start only the web app |
-| `bun run dev:server` | Start only the API server |
+| `bun run dev` | Start all apps in development |
 | `bun run build` | Build all apps |
 | `bun run check-types` | TypeScript type checking |
-| `bun run lint` | Run linting and formatting checks |
-| `bun run lint:fix` | Fix linting and formatting issues |
-| `bun run db:up` | Start the local database |
-| `bun run db:down` | Stop the local database |
+| `bun run lint:fix` | Fix linting and formatting |
+| `bun run db:up` / `db:down` | Start / stop local database |
 | `bun run db:push` | Push schema changes |
 | `bun run db:studio` | Open database UI |
 
-## Troubleshooting
+## Team
 
-### Mobile app won't start
-
-Make sure you've run `bun run android` at least once from `apps/native/` to create the native build. The app requires native modules that aren't available in Expo Go.
-
-### Wallet not connecting
-
-- Ensure you have a compatible wallet app installed on your device/emulator
-- Check that the wallet app is up to date
-- On emulator, you may need to install a wallet from the Play Store
-
-### Database connection errors
-
-- Verify Docker is running: `docker ps`
-- Check that the database is up: `bun run db:up`
-- Ensure `DATABASE_URL` in `.env` matches your setup
+Built by [colmena](https://github.com/colmena-dev) — **[@beeman](https://github.com/beeman)** and **[@obrera](https://github.com/obrera)** (AI pair programmer 🐝)
 
 ## License
 
