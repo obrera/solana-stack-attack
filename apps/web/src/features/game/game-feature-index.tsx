@@ -13,9 +13,19 @@ import {
 } from '@/features/burn/data-access/use-burn-upgrades'
 import { usePendingRewardCount } from '@/features/rewards/data-access/use-pending-reward-count'
 import { useGameContext } from './data-access/game-provider'
+import { GameUiMilestoneModal } from './ui/game-ui-milestone-modal'
+import { GameUiWelcomeModal } from './ui/game-ui-welcome-modal'
 
 export function GameFeatureIndex() {
-  const { state, floatingTexts, buyAll, upgrades, canAfford } = useGameContext()
+  const {
+    state,
+    floatingTexts,
+    buyAll,
+    upgrades,
+    canAfford,
+    dismissOfflineEarnings,
+    dismissCelebration,
+  } = useGameContext()
   const { data: purchased } = useBurnPurchased()
   const hasBuyAll = purchased?.includes('buy_all') ?? false
   const hasAutoClaim = purchased?.includes('auto_claim') ?? false
@@ -34,6 +44,20 @@ export function GameFeatureIndex() {
 
   return (
     <div className="flex min-h-[calc(100vh-4rem)] flex-col items-center gap-6 p-6 lg:flex-row lg:items-start lg:justify-center lg:gap-12">
+      {/* Welcome Back Modal */}
+      {state.offlineEarnings != null && state.offlineEarnings > 0 && (
+        <GameUiWelcomeModal
+          earnings={state.offlineEarnings}
+          onDismiss={dismissOfflineEarnings}
+        />
+      )}
+
+      {/* Milestone Celebration Modal */}
+      <GameUiMilestoneModal
+        milestone={state.pendingCelebration}
+        onDismiss={dismissCelebration}
+      />
+
       {/* Game Area */}
       <div className="flex flex-col items-center gap-6">
         <GameUiEnergyBar />
@@ -52,6 +76,23 @@ export function GameFeatureIndex() {
                 : ' · ⚡ auto-tappers paused')}
           </div>
         </div>
+
+        {/* Energy warnings */}
+        {state.pointsPerSecond > 0 && state.energy <= 0 && (
+          <div className="animate-pulse rounded-xl bg-red-500/20 px-6 py-3">
+            <span className="font-bold text-lg text-red-500">
+              ⚡ TAP TO RECHARGE!
+            </span>
+          </div>
+        )}
+        {state.pointsPerSecond > 0 &&
+          state.energy > 0 &&
+          state.maxEnergy > 0 &&
+          state.energy / state.maxEnergy < 0.3 && (
+            <span className="font-semibold text-sm text-yellow-500">
+              ⚡ Energy low — keep tapping!
+            </span>
+          )}
 
         {/* Tap Button */}
         <div className="relative">
