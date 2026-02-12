@@ -5,6 +5,7 @@ import { View } from 'react-native'
 
 import { AuthFeatureGuard } from '@/features/auth/auth-feature-guard'
 import { useGameContext } from '@/features/game/data-access/game-provider'
+import { usePendingRewardCount } from '@/features/rewards/data-access/use-pending-reward-count'
 
 function TabsLayout() {
   const foregroundColor = useThemeColor('foreground')
@@ -14,6 +15,7 @@ function TabsLayout() {
 
   const { upgrades, canAfford } = useGameContext()
   const canAffordAnyUpgrade = upgrades.some((u) => canAfford(u.id))
+  const pendingRewardCount = usePendingRewardCount()
 
   return (
     <Tabs
@@ -69,7 +71,15 @@ function TabsLayout() {
         options={{
           title: 'Profile',
           tabBarIcon: ({ color, size }) => (
-            <Ionicons name="person" size={size} color={color} />
+            <View>
+              <Ionicons name="person" size={size} color={color} />
+              {pendingRewardCount > 0 && (
+                <View
+                  style={{ backgroundColor: accentColor }}
+                  className="absolute -top-1 -right-1 h-3 w-3 rounded-full"
+                />
+              )}
+            </View>
           ),
         }}
       />
