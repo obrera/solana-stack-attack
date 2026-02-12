@@ -60,6 +60,11 @@ export function GameFeatureLeaderboard() {
                 name={player.name}
                 score={player.score}
                 totalTaps={player.totalTaps}
+                displayTotalBurned={
+                  (player as Record<string, unknown>).displayTotalBurned as
+                    | number
+                    | undefined
+                }
                 isCurrentUser={player.userId === currentUserId}
                 accentColor={accentColor}
                 mutedColor={mutedColor}

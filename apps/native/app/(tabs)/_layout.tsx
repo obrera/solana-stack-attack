@@ -62,6 +62,15 @@ function TabsLayout() {
         }}
       />
       <Tabs.Screen
+        name="burn"
+        options={{
+          title: 'Burn',
+          tabBarIcon: ({ color, size }) => (
+            <Ionicons name="flame" size={size} color={color} />
+          ),
+        }}
+      />
+      <Tabs.Screen
         name="ranks"
         options={{
           title: 'Ranks',

@@ -1,8 +1,20 @@
 import { Ionicons } from '@expo/vector-icons'
 import { Card, useThemeColor } from 'heroui-native'
 import { useEffect, useRef } from 'react'
-import { Animated, Pressable, Text, View } from 'react-native'
+import {
+  ActivityIndicator,
+  Alert,
+  Animated,
+  Pressable,
+  Text,
+  View,
+} from 'react-native'
 
+import {
+  useBurnPurchased,
+  useClaimAll,
+} from '@/features/burn/data-access/use-burn-upgrades'
+import { usePendingRewardCount } from '@/features/rewards/data-access/use-pending-reward-count'
 import { UiContainer } from '@/features/ui/ui/ui-container'
 import { useGameContext } from './data-access/game-provider'
 import { GameUiFloatingText } from './ui/game-ui-floating-text'
@@ -22,6 +34,15 @@ export function GameFeatureIndex() {
   const accentColor = useThemeColor('success')
   const warningColor = useThemeColor('warning')
   const dangerColor = useThemeColor('danger')
+
+  const { data: purchased } = useBurnPurchased()
+  const hasBuyAll = purchased?.includes('buy_all') ?? false
+  const hasAutoClaim = purchased?.includes('auto_claim') ?? false
+  const claimAllMutation = useClaimAll()
+  const { buyAll, upgrades, canAfford } = useGameContext()
+  const canAffordAny = hasBuyAll && upgrades.some((u) => canAfford(u.id))
+  const pendingRewards = usePendingRewardCount()
+  const canClaimAny = hasAutoClaim && pendingRewards > 0
 
   const energyPercent = state.maxEnergy > 0 ? state.energy / state.maxEnergy : 0
   const energyBarColor =
@@ -204,6 +225,73 @@ export function GameFeatureIndex() {
               </View>
             </View>
           </Card>
+
+          {/* Quick Actions (unlocked via burn shop) */}
+          {(hasBuyAll || hasAutoClaim) && (
+            <View className="mt-3 flex-row gap-3">
+              {hasBuyAll && (
+                <Pressable
+                  onPress={() => {
+                    const spent = buyAll()
+                    if (spent > 0) {
+                      Alert.alert('🛒', `Bought upgrades for ${spent} points!`)
+                    }
+                  }}
+                  disabled={!canAffordAny}
+                  className="flex-1 flex-row items-center justify-center gap-2 rounded-xl py-3"
+                  style={{
+                    backgroundColor: `${accentColor}20`,
+                    opacity: canAffordAny ? 1 : 0.4,
+                  }}
+                >
+                  <Ionicons name="cart" size={18} color={accentColor} />
+                  <Text
+                    style={{ color: accentColor }}
+                    className="font-semibold text-sm"
+                  >
+                    Buy All
+                  </Text>
+                </Pressable>
+              )}
+              {hasAutoClaim && (
+                <Pressable
+                  onPress={() =>
+                    claimAllMutation.mutate(undefined, {
+                      onSuccess: (data) => {
+                        if (data.claimed > 0) {
+                          Alert.alert(
+                            '⚡',
+                            `Claimed ${data.claimed} rewards for ${data.displayTotalAmount} STACK!`,
+                          )
+                        } else {
+                          Alert.alert('⚡', 'No pending rewards to claim.')
+                        }
+                      },
+                    })
+                  }
+                  disabled={!canClaimAny || claimAllMutation.isPending}
+                  className="flex-1 flex-row items-center justify-center gap-2 rounded-xl py-3"
+                  style={{
+                    backgroundColor: `${accentColor}20`,
+                    opacity:
+                      canClaimAny && !claimAllMutation.isPending ? 1 : 0.4,
+                  }}
+                >
+                  {claimAllMutation.isPending ? (
+                    <ActivityIndicator size={18} color={accentColor} />
+                  ) : (
+                    <Ionicons name="gift" size={18} color={accentColor} />
+                  )}
+                  <Text
+                    style={{ color: accentColor }}
+                    className="font-semibold text-sm"
+                  >
+                    Claim All
+                  </Text>
+                </Pressable>
+              )}
+            </View>
+          )}
         </View>
       </View>
     </UiContainer>

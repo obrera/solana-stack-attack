@@ -1,7 +1,9 @@
 import { db } from '@solana-stack-attack/db'
 import { user } from '@solana-stack-attack/db/schema/auth'
+import { burn } from '@solana-stack-attack/db/schema/burn'
 import { gameState } from '@solana-stack-attack/db/schema/game'
-import { desc, eq, gt, sql } from 'drizzle-orm'
+import { TOKEN_CONFIG } from '@solana-stack-attack/solana-client'
+import { eq, gt, sql } from 'drizzle-orm'
 import z from 'zod'
 
 import { protectedProcedure, publicProcedure } from '../../index'
@@ -155,7 +157,7 @@ export const gameRouter = {
       return created
     }),
 
-  // Get leaderboard (top players by score)
+  // Get leaderboard — ranked by combined score (game score + STACK burned)
   getLeaderboard: publicProcedure
     .input(
       z
@@ -167,11 +169,9 @@ export const gameRouter = {
     .handler(async ({ input }) => {
       const limit = input?.limit ?? 10
 
-      const leaders = await db
+      // Get game stats
+      const players = await db
         .select({
-          rank: sql<number>`row_number() over (order by ${gameState.score} desc)`.as(
-            'rank',
-          ),
           userId: gameState.userId,
           name: user.name,
           image: user.image,
@@ -180,10 +180,41 @@ export const gameRouter = {
         })
         .from(gameState)
         .innerJoin(user, eq(gameState.userId, user.id))
-        .orderBy(desc(gameState.score))
-        .limit(limit)
 
-      return leaders
+      // Get burn totals per user
+      const burnTotals = await db
+        .select({
+          userId: burn.userId,
+          totalBurned: sql<number>`coalesce(sum(${burn.amount}), 0)`.as(
+            'total_burned',
+          ),
+        })
+        .from(burn)
+        .groupBy(burn.userId)
+
+      const burnMap = new Map(
+        burnTotals.map((b) => [b.userId, b.totalBurned ?? 0]),
+      )
+
+      // Combine and rank: score * 0.3 + totalBurned (in display units) * 0.7
+      const divisor = 10 ** TOKEN_CONFIG.decimals
+      const ranked = players
+        .map((p) => {
+          const totalBurned = burnMap.get(p.userId) ?? 0
+          const burnScore = totalBurned / divisor
+          const combinedScore = p.score * 0.3 + burnScore * 0.7
+          return {
+            ...p,
+            totalBurned,
+            displayTotalBurned: totalBurned / divisor,
+            combinedScore,
+          }
+        })
+        .sort((a, b) => b.combinedScore - a.combinedScore)
+        .slice(0, limit)
+        .map((p, i) => ({ ...p, rank: i + 1 }))
+
+      return ranked
     }),
 
   // Get current user's rank

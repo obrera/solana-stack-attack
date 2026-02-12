@@ -1,0 +1,1 @@
+export { burnRouter } from './router'
