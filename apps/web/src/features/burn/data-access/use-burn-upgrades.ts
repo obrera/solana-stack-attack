@@ -1,4 +1,11 @@
+import { getBase64Encoder } from '@solana/kit'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import {
+  type UiWalletAccount,
+  useSignAndSendTransaction,
+  useWalletUi,
+} from '@wallet-ui/react'
+import { useCallback } from 'react'
 import { toast } from 'sonner'
 import { client, orpc } from '@/utils/orpc'
 
@@ -20,18 +27,37 @@ export function useBurnSpendableBalance() {
   })
 }
 
+/**
+ * Returns a function that signs and sends a base64-encoded transaction via the connected wallet.
+ * Must only be called when a wallet account is connected (guard at page level).
+ */
+export function useSignAndSendBase64Tx() {
+  const { account, cluster } = useWalletUi()
+  // Safe: burn page has wallet guard, account is always defined here
+  const walletAccount = account as UiWalletAccount
+  const signAndSend = useSignAndSendTransaction(walletAccount, cluster.id)
+
+  return useCallback(
+    async (base64Tx: string) => {
+      const txBytes = new Uint8Array(getBase64Encoder().encode(base64Tx))
+      await signAndSend({ transaction: txBytes })
+    },
+    [signAndSend],
+  )
+}
+
 export function useBurnPurchase() {
   const queryClient = useQueryClient()
+  const signAndSendBase64Tx = useSignAndSendBase64Tx()
 
   return useMutation({
-    mutationFn: async (_upgradeId: string) => {
-      // TODO: implement wallet signing for pre-built burn transactions
-      // The server returns a base64 tx via client.burn.prepareBurn({ upgradeId })
-      // that needs the user's wallet signature before sending
-      toast.error('Burn purchases require wallet signing (coming soon)')
-      throw new Error('Wallet signing not yet implemented for web')
+    mutationFn: async (upgradeId: string) => {
+      const { transaction } = await client.burn.prepareBurn({ upgradeId })
+      await signAndSendBase64Tx(transaction)
+      return await client.burn.confirmBurn({ upgradeId })
     },
     onSuccess: () => {
+      toast.success('Burn upgrade purchased!')
       queryClient.invalidateQueries({
         queryKey: orpc.burn.purchased.queryOptions().queryKey,
       })
@@ -41,6 +67,11 @@ export function useBurnPurchase() {
       queryClient.invalidateQueries({
         queryKey: orpc.game.getLeaderboard.queryOptions().queryKey,
       })
+    },
+    onError: (error) => {
+      toast.error(
+        `Burn failed: ${error instanceof Error ? error.message : String(error)}`,
+      )
     },
   })
 }
@@ -53,13 +84,16 @@ export function useFuelCellInfo() {
 
 export function useFuelCellPurchase() {
   const queryClient = useQueryClient()
+  const signAndSendBase64Tx = useSignAndSendBase64Tx()
 
   return useMutation({
     mutationFn: async () => {
-      toast.error('Fuel cell purchases require wallet signing (coming soon)')
-      throw new Error('Wallet signing not yet implemented for web')
+      const { transaction } = await client.burn.prepareFuelCell()
+      await signAndSendBase64Tx(transaction)
+      return await client.burn.confirmFuelCell()
     },
     onSuccess: () => {
+      toast.success('Fuel cell purchased!')
       queryClient.invalidateQueries({
         queryKey: orpc.burn.fuelCellInfo.queryOptions().queryKey,
       })
@@ -69,6 +103,11 @@ export function useFuelCellPurchase() {
       queryClient.invalidateQueries({
         queryKey: orpc.game.getLeaderboard.queryOptions().queryKey,
       })
+    },
+    onError: (error) => {
+      toast.error(
+        `Fuel cell failed: ${error instanceof Error ? error.message : String(error)}`,
+      )
     },
   })
 }

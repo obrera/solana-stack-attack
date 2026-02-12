@@ -1,8 +1,15 @@
-import { LucideGift, LucideShoppingCart, LucideZap } from 'lucide-react'
+import { useWalletUi } from '@wallet-ui/react'
+import {
+  LucideGift,
+  LucideShoppingCart,
+  LucideWallet,
+  LucideZap,
+} from 'lucide-react'
 import { toast } from 'sonner'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import { Spinner } from '@/components/ui/spinner'
+import { WalletDropdown } from '@/components/wallet-dropdown'
 import { useGameContext } from '@/features/game/data-access/game-provider'
 import {
   useBurnPurchase,
@@ -16,6 +23,33 @@ import {
 import { BurnUiUpgradeCard } from './ui/burn-ui-upgrade-card'
 
 export function BurnFeatureShop() {
+  const { account } = useWalletUi()
+
+  if (!account) {
+    return <BurnWalletGuard />
+  }
+
+  return <BurnFeatureShopInner />
+}
+
+function BurnWalletGuard() {
+  return (
+    <div className="mx-auto flex w-full max-w-lg flex-col items-center justify-center gap-6 p-8 pt-24">
+      <div className="flex size-20 items-center justify-center rounded-full bg-red-500/20">
+        <LucideWallet className="size-10 text-red-500" />
+      </div>
+      <div className="text-center">
+        <h2 className="font-bold text-xl">Connect Your Wallet</h2>
+        <p className="mt-2 text-muted-foreground text-sm">
+          Connect a wallet to burn STACK tokens for permanent upgrades.
+        </p>
+      </div>
+      <WalletDropdown />
+    </div>
+  )
+}
+
+function BurnFeatureShopInner() {
   const { data: upgrades, isLoading: upgradesLoading } = useBurnUpgrades()
   const { data: purchased, isLoading: purchasedLoading } = useBurnPurchased()
   const { data: balance, isLoading: balanceLoading } = useBurnSpendableBalance()

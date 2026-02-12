@@ -15,6 +15,7 @@ import { toast } from 'sonner'
 import { ClusterDropdown } from '@/components/cluster-dropdown'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
+import { WalletDropdown } from '@/components/wallet-dropdown'
 import { useGameContext } from '@/features/game/data-access/game-provider'
 import { RewardsFeature } from '@/features/rewards/rewards-feature'
 import { authClient } from '@/lib/auth-client'
@@ -121,11 +122,14 @@ export function ProfileFeature() {
                 </p>
               </div>
             </div>
-            {walletAddress && (
-              <Button variant="ghost" size="icon" onClick={handleCopyWallet}>
-                <LucideCopy className="size-4" />
-              </Button>
-            )}
+            <div className="flex items-center gap-2">
+              {walletAddress && (
+                <Button variant="ghost" size="icon" onClick={handleCopyWallet}>
+                  <LucideCopy className="size-4" />
+                </Button>
+              )}
+              <WalletDropdown />
+            </div>
           </div>
         </CardContent>
       </Card>
