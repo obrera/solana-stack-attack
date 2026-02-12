@@ -12,7 +12,13 @@ import { queryClient } from '@/features/core/util/core-orpc'
 import { useGameContext } from '@/features/game/data-access/game-provider'
 import { useTokenBalance } from '@/features/rewards/data-access/use-token-balance'
 import { RewardsFeature } from '@/features/rewards/rewards-feature'
-import { solanaEllipsify } from '@/features/solana/util/solana-ellipsify'
+
+function ellipsify(str = '', len = 4, delimiter = '..') {
+  return str.length < len * 2 + delimiter.length
+    ? str
+    : `${str.slice(0, len)}${delimiter}${str.slice(-len)}`
+}
+
 import { UiContainer } from '@/features/ui/ui/ui-container'
 import { UiThemeToggle } from '@/features/ui/ui/ui-theme-toggle'
 
@@ -84,7 +90,7 @@ export function ProfileFeature() {
 
   const walletAddress = account?.address
   const truncatedWallet = walletAddress
-    ? solanaEllipsify(walletAddress)
+    ? ellipsify(walletAddress)
     : 'Not connected'
 
   async function handleCopyWallet() {
@@ -111,7 +117,7 @@ export function ProfileFeature() {
           </Text>
           {walletAddress && (
             <Text className="mt-1 font-mono text-muted text-sm">
-              {solanaEllipsify(walletAddress, 6)}
+              {ellipsify(walletAddress, 6)}
             </Text>
           )}
         </View>

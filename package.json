@@ -8,7 +8,6 @@
       "turbo/generators"
     ],
     "catalog": {
-      "@ai-sdk/react": "^3.0.3",
       "@better-auth/expo": "^1.4.18",
       "@libsql/client": "0.15.15",
       "@orpc/client": "^1.12.2",
@@ -21,7 +20,6 @@
       "@solana/kit": "^6.0.0",
       "@solana/kit-plugin-rpc": "^0.2.0",
       "@types/bun": "^1.3.8",
-      "ai": "^6.0.3",
       "better-auth": "^1.4.18",
       "dotenv": "^17.2.2",
       "drizzle-orm": "^0.45.1",

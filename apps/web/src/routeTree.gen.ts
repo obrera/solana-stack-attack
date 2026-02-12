@@ -9,28 +9,14 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
-import { Route as TodosRouteImport } from './routes/todos'
-import { Route as SolanaRouteImport } from './routes/solana'
 import { Route as ShopRouteImport } from './routes/shop'
 import { Route as ProfileRouteImport } from './routes/profile'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as LeaderboardRouteImport } from './routes/leaderboard'
 import { Route as GameRouteImport } from './routes/game'
-import { Route as DashboardRouteImport } from './routes/dashboard'
 import { Route as BurnRouteImport } from './routes/burn'
-import { Route as AiRouteImport } from './routes/ai'
 import { Route as IndexRouteImport } from './routes/index'
 
-const TodosRoute = TodosRouteImport.update({
-  id: '/todos',
-  path: '/todos',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const SolanaRoute = SolanaRouteImport.update({
-  id: '/solana',
-  path: '/solana',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const ShopRoute = ShopRouteImport.update({
   id: '/shop',
   path: '/shop',
@@ -56,19 +42,9 @@ const GameRoute = GameRouteImport.update({
   path: '/game',
   getParentRoute: () => rootRouteImport,
 } as any)
-const DashboardRoute = DashboardRouteImport.update({
-  id: '/dashboard',
-  path: '/dashboard',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const BurnRoute = BurnRouteImport.update({
   id: '/burn',
   path: '/burn',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const AiRoute = AiRouteImport.update({
-  id: '/ai',
-  path: '/ai',
   getParentRoute: () => rootRouteImport,
 } as any)
 const IndexRoute = IndexRouteImport.update({
@@ -79,116 +55,67 @@ const IndexRoute = IndexRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
-  '/ai': typeof AiRoute
   '/burn': typeof BurnRoute
-  '/dashboard': typeof DashboardRoute
   '/game': typeof GameRoute
   '/leaderboard': typeof LeaderboardRoute
   '/login': typeof LoginRoute
   '/profile': typeof ProfileRoute
   '/shop': typeof ShopRoute
-  '/solana': typeof SolanaRoute
-  '/todos': typeof TodosRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
-  '/ai': typeof AiRoute
   '/burn': typeof BurnRoute
-  '/dashboard': typeof DashboardRoute
   '/game': typeof GameRoute
   '/leaderboard': typeof LeaderboardRoute
   '/login': typeof LoginRoute
   '/profile': typeof ProfileRoute
   '/shop': typeof ShopRoute
-  '/solana': typeof SolanaRoute
-  '/todos': typeof TodosRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
-  '/ai': typeof AiRoute
   '/burn': typeof BurnRoute
-  '/dashboard': typeof DashboardRoute
   '/game': typeof GameRoute
   '/leaderboard': typeof LeaderboardRoute
   '/login': typeof LoginRoute
   '/profile': typeof ProfileRoute
   '/shop': typeof ShopRoute
-  '/solana': typeof SolanaRoute
-  '/todos': typeof TodosRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
-    | '/ai'
     | '/burn'
-    | '/dashboard'
     | '/game'
     | '/leaderboard'
     | '/login'
     | '/profile'
     | '/shop'
-    | '/solana'
-    | '/todos'
   fileRoutesByTo: FileRoutesByTo
-  to:
-    | '/'
-    | '/ai'
-    | '/burn'
-    | '/dashboard'
-    | '/game'
-    | '/leaderboard'
-    | '/login'
-    | '/profile'
-    | '/shop'
-    | '/solana'
-    | '/todos'
+  to: '/' | '/burn' | '/game' | '/leaderboard' | '/login' | '/profile' | '/shop'
   id:
     | '__root__'
     | '/'
-    | '/ai'
     | '/burn'
-    | '/dashboard'
     | '/game'
     | '/leaderboard'
     | '/login'
     | '/profile'
     | '/shop'
-    | '/solana'
-    | '/todos'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
-  AiRoute: typeof AiRoute
   BurnRoute: typeof BurnRoute
-  DashboardRoute: typeof DashboardRoute
   GameRoute: typeof GameRoute
   LeaderboardRoute: typeof LeaderboardRoute
   LoginRoute: typeof LoginRoute
   ProfileRoute: typeof ProfileRoute
   ShopRoute: typeof ShopRoute
-  SolanaRoute: typeof SolanaRoute
-  TodosRoute: typeof TodosRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    '/todos': {
-      id: '/todos'
-      path: '/todos'
-      fullPath: '/todos'
-      preLoaderRoute: typeof TodosRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/solana': {
-      id: '/solana'
-      path: '/solana'
-      fullPath: '/solana'
-      preLoaderRoute: typeof SolanaRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/shop': {
       id: '/shop'
       path: '/shop'
@@ -224,25 +151,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof GameRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/dashboard': {
-      id: '/dashboard'
-      path: '/dashboard'
-      fullPath: '/dashboard'
-      preLoaderRoute: typeof DashboardRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/burn': {
       id: '/burn'
       path: '/burn'
       fullPath: '/burn'
       preLoaderRoute: typeof BurnRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/ai': {
-      id: '/ai'
-      path: '/ai'
-      fullPath: '/ai'
-      preLoaderRoute: typeof AiRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/': {
@@ -257,16 +170,12 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
-  AiRoute: AiRoute,
   BurnRoute: BurnRoute,
-  DashboardRoute: DashboardRoute,
   GameRoute: GameRoute,
   LeaderboardRoute: LeaderboardRoute,
   LoginRoute: LoginRoute,
   ProfileRoute: ProfileRoute,
   ShopRoute: ShopRoute,
-  SolanaRoute: SolanaRoute,
-  TodosRoute: TodosRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

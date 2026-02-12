@@ -13,7 +13,6 @@
     "web": "expo start --web"
   },
   "dependencies": {
-    "@ai-sdk/react": "catalog:",
     "@better-auth/expo": "catalog:",
     "@expo/metro-runtime": "~6.1.2",
     "@expo/vector-icons": "^15.0.3",
@@ -33,7 +32,6 @@
     "@tanstack/react-query": "^5.90.12",
     "@ungap/structured-clone": "^1.3.0",
     "@wallet-ui/react-native-kit": "https://pkg.pr.new/wallet-ui/wallet-ui/@wallet-ui/react-native-kit@396",
-    "ai": "catalog:",
     "better-auth": "catalog:",
     "dotenv": "catalog:",
     "expo": "^54.0.23",
