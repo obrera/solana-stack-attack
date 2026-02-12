@@ -15,6 +15,7 @@
         "@solana-program/token-2022": "^0.9.0",
         "@solana-stack-attack/config": "workspace:*",
         "@solana/kit": "catalog:",
+        "@solana/kit-plugin-rpc": "catalog:",
         "@types/bun": "catalog:",
         "lefthook": "^2.0.13",
         "turbo": "^2.6.3",

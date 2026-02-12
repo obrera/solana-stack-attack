@@ -14,9 +14,8 @@ import { resolve } from 'node:path'
 import {
   appendTransactionMessageInstructions,
   assertIsTransactionWithBlockhashLifetime,
+  createEmptyClient,
   createKeyPairSignerFromBytes,
-  createSolanaRpc,
-  createSolanaRpcSubscriptions,
   createTransactionMessage,
   generateKeyPairSigner,
   getSignatureFromTransaction,
@@ -27,6 +26,7 @@ import {
   signTransactionMessageWithSigners,
   some,
 } from '@solana/kit'
+import { rpc } from '@solana/kit-plugin-rpc'
 import { getCreateAccountInstruction } from '@solana-program/system'
 import {
   extension,
@@ -40,8 +40,14 @@ import {
   TOKEN_2022_PROGRAM_ADDRESS,
 } from '@solana-program/token-2022'
 
-const RPC_URL = process.env.SOLANA_RPC_URL ?? 'https://api.devnet.solana.com'
-const WS_URL = RPC_URL.replace('https://', 'wss://').replace('http://', 'ws://')
+function createSolanaClient({ url, urlWs }: { url: string; urlWs?: string }) {
+  urlWs = urlWs ?? url.replace('http', 'ws').replace('8899', '8900')
+  return createEmptyClient().use(rpc(url, urlWs ? { url: urlWs } : undefined))
+}
+
+const url = process.env.SOLANA_RPC_URL ?? 'https://api.devnet.solana.com'
+const client = createSolanaClient({ url })
+
 const KEYPAIR_PATH =
   process.env.MINT_AUTHORITY ??
   resolve(process.env.HOME ?? '~', '.config/solana/id.json')
@@ -66,12 +72,8 @@ async function main() {
   const authority = await createKeyPairSignerFromBytes(keypairBytes)
   console.log('Authority:', authority.address)
 
-  // Connect to RPC
-  const rpc = createSolanaRpc(RPC_URL)
-  const rpcSubscriptions = createSolanaRpcSubscriptions(WS_URL)
-
   // Check balance
-  const balance = await rpc
+  const balance = await client.rpc
     .getBalance(authority.address, { commitment: 'confirmed' })
     .send()
   console.log('Balance:', Number(balance.value) / 1_000_000_000, 'SOL\n')
@@ -109,11 +111,13 @@ async function main() {
     getMintSize([metadataPointerExtension, metadataExtension]),
   )
 
-  const rent = await rpc
+  const rent = await client.rpc
     .getMinimumBalanceForRentExemption(spaceWithMetadata)
     .send()
 
-  const { value: latestBlockhash } = await rpc.getLatestBlockhash().send()
+  const { value: latestBlockhash } = await client.rpc
+    .getLatestBlockhash()
+    .send()
 
   // Build instructions
   const createMintAccountInstruction = getCreateAccountInstruction({
@@ -167,10 +171,10 @@ async function main() {
   const signedTransaction =
     await signTransactionMessageWithSigners(transactionMessage)
   assertIsTransactionWithBlockhashLifetime(signedTransaction)
-  await sendAndConfirmTransactionFactory({ rpc, rpcSubscriptions })(
-    signedTransaction,
-    { commitment: 'confirmed', skipPreflight: true },
-  )
+  await sendAndConfirmTransactionFactory(client)(signedTransaction, {
+    commitment: 'confirmed',
+    skipPreflight: true,
+  })
 
   const signature = getSignatureFromTransaction(signedTransaction)
 
@@ -204,7 +208,9 @@ async function main() {
     amount: TOKEN_SUPPLY_RAW,
   })
 
-  const { value: latestBlockhash2 } = await rpc.getLatestBlockhash().send()
+  const { value: latestBlockhash2 } = await client.rpc
+    .getLatestBlockhash()
+    .send()
 
   const mintSupplyMessage = pipe(
     createTransactionMessage({ version: 0 }),
@@ -220,10 +226,10 @@ async function main() {
   const signedMintSupply =
     await signTransactionMessageWithSigners(mintSupplyMessage)
   assertIsTransactionWithBlockhashLifetime(signedMintSupply)
-  await sendAndConfirmTransactionFactory({ rpc, rpcSubscriptions })(
-    signedMintSupply,
-    { commitment: 'confirmed', skipPreflight: true },
-  )
+  await sendAndConfirmTransactionFactory(client)(signedMintSupply, {
+    commitment: 'confirmed',
+    skipPreflight: true,
+  })
 
   const mintSupplySignature = getSignatureFromTransaction(signedMintSupply)
 
