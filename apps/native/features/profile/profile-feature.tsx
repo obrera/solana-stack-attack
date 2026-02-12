@@ -10,6 +10,8 @@ import {
 } from '@/features/auth/data-access/auth-client'
 import { queryClient } from '@/features/core/util/core-orpc'
 import { useGameContext } from '@/features/game/data-access/game-provider'
+import { useTokenBalance } from '@/features/rewards/data-access/use-token-balance'
+import { RewardsFeature } from '@/features/rewards/rewards-feature'
 import { solanaEllipsify } from '@/features/solana/util/solana-ellipsify'
 import { UiContainer } from '@/features/ui/ui/ui-container'
 import { UiThemeToggle } from '@/features/ui/ui/ui-theme-toggle'
@@ -21,6 +23,7 @@ export function ProfileFeature() {
   const { user } = useIsAuthenticated()
   const { state } = useGameContext()
   const { account } = useMobileWallet()
+  const { balance } = useTokenBalance()
   const accentColor = useThemeColor('success')
   const mutedColor = useThemeColor('muted')
 
@@ -49,9 +52,13 @@ export function ProfileFeature() {
         <View className="items-center py-6">
           <ProfileUiAvatar name={user.name ?? 'Player'} size={80} />
           <Text className="mt-4 font-bold text-2xl text-foreground">
-            {user.name}
+            Level {state.level} Stacker
           </Text>
-          <Text className="mt-1 text-muted">{user.email}</Text>
+          {walletAddress && (
+            <Text className="mt-1 font-mono text-muted text-sm">
+              {solanaEllipsify(walletAddress, 6)}
+            </Text>
+          )}
         </View>
 
         {/* Wallet Card */}
@@ -73,6 +80,15 @@ export function ProfileFeature() {
               <Ionicons name="copy-outline" size={20} color={mutedColor} />
             </Pressable>
           </View>
+          {balance !== null && (
+            <View className="mt-3 flex-row items-center gap-2 border-background border-t pt-3">
+              <Ionicons name="diamond" size={18} color={accentColor} />
+              <Text className="font-semibold text-foreground text-lg">
+                {balance.toLocaleString()}
+              </Text>
+              <Text className="text-muted text-sm">STACK</Text>
+            </View>
+          )}
         </Card>
 
         {/* Stats */}
@@ -102,6 +118,14 @@ export function ProfileFeature() {
             value={`+${state.pointsPerSecond}`}
             icon="time"
           />
+        </View>
+
+        {/* Rewards */}
+        <Text className="mb-3 font-semibold text-foreground text-lg">
+          Rewards
+        </Text>
+        <View className="mb-6">
+          <RewardsFeature />
         </View>
 
         {/* Settings */}

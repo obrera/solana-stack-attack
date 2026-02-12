@@ -12,12 +12,12 @@ export const env = createEnv({
       .pipe(z.array(z.url())),
     DATABASE_AUTH_TOKEN: z.string().min(1),
     DATABASE_URL: z.string().min(1),
-    FEE_PAYER_KEYPAIR: z.string().min(1).optional(),
+    FEE_PAYER_KEYPAIR: z.string().min(1),
     NODE_ENV: z
       .enum(['development', 'production', 'test'])
       .default('development'),
     SOLANA_RPC_URL: z.string().url().default('https://api.devnet.solana.com'),
-    TOKEN_MINT_ADDRESS: z.string().min(1).optional(),
+    TOKEN_MINT_ADDRESS: z.string().min(1),
   },
   runtimeEnv: process.env,
   emptyStringAsUndefined: true,

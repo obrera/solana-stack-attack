@@ -5,6 +5,7 @@ import { desc, eq, gt, sql } from 'drizzle-orm'
 import z from 'zod'
 
 import { protectedProcedure, publicProcedure } from '../../index'
+import { createPendingRewards } from '../reward/lib/create-pending-rewards'
 import { MILESTONES } from './lib/milestones'
 
 const ownedUpgradeSchema = z.object({
@@ -103,6 +104,8 @@ export const gameRouter = {
         .where(eq(gameState.userId, userId))
         .limit(1)
 
+      const milestones = input.achievedMilestones ?? []
+
       if (existing) {
         const [updated] = await db
           .update(gameState)
@@ -111,11 +114,16 @@ export const gameRouter = {
             totalTaps: input.totalTaps,
             ownedUpgrades: input.ownedUpgrades,
             pointsPerSecond: input.pointsPerSecond,
-            achievedMilestones: input.achievedMilestones ?? [],
+            achievedMilestones: milestones,
             lastActiveAt: new Date(),
           })
           .where(eq(gameState.userId, userId))
           .returning()
+
+        // Create pending rewards for newly achieved milestones
+        if (milestones.length > 0) {
+          await createPendingRewards(userId, milestones)
+        }
 
         return updated
       }
@@ -128,10 +136,15 @@ export const gameRouter = {
           totalTaps: input.totalTaps,
           ownedUpgrades: input.ownedUpgrades,
           pointsPerSecond: input.pointsPerSecond,
-          achievedMilestones: input.achievedMilestones ?? [],
+          achievedMilestones: milestones,
           lastActiveAt: new Date(),
         })
         .returning()
+
+      // Create pending rewards for newly achieved milestones
+      if (milestones.length > 0) {
+        await createPendingRewards(userId, milestones)
+      }
 
       return created
     }),
