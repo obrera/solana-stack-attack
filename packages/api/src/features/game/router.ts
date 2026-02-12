@@ -94,8 +94,8 @@ export const gameRouter = {
         ownedUpgrades: z.array(ownedUpgradeSchema),
         pointsPerSecond: z.number().int().min(0),
         achievedMilestones: z.array(z.string()).optional(),
-        energy: z.number().int().min(0).max(100).optional(),
-        maxEnergy: z.number().int().min(0).max(100).optional(),
+        energy: z.number().int().min(0).max(200).optional(),
+        maxEnergy: z.number().int().min(0).max(200).optional(),
       }),
     )
     .handler(async ({ context, input }) => {
