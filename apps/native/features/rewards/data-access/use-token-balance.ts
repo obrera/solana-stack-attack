@@ -21,32 +21,28 @@ export function invalidateTokenBalance() {
 export function useTokenBalance() {
   const [balance, setBalance] = useState<number | null>(null)
   const [isLoading, setIsLoading] = useState(true)
-  const [tick, setTick] = useState(0)
 
-  const refetch = useCallback(() => {
-    setTick((t) => t + 1)
+  const fetchBalance = useCallback(async () => {
+    try {
+      const data = await client.reward.balance()
+      setBalance(data.balance)
+    } catch {
+      // Silently fail
+    } finally {
+      setIsLoading(false)
+    }
   }, [])
 
   useEffect(() => {
-    listeners.push(refetch)
+    listeners.push(fetchBalance)
     return () => {
-      listeners = listeners.filter((l) => l !== refetch)
+      listeners = listeners.filter((l) => l !== fetchBalance)
     }
-  }, [refetch])
+  }, [fetchBalance])
 
   useEffect(() => {
-    async function fetch() {
-      try {
-        const data = await client.reward.balance()
-        setBalance(data.balance)
-      } catch {
-        // Silently fail
-      } finally {
-        setIsLoading(false)
-      }
-    }
-    fetch()
-  }, [tick])
+    fetchBalance()
+  }, [fetchBalance])
 
   return { balance, isLoading }
 }
