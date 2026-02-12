@@ -259,6 +259,9 @@
     "packages/game-data-access": {
       "name": "@solana-stack-attack/game-data-access",
       "version": "0.0.0",
+      "dependencies": {
+        "@solana-stack-attack/game-util": "workspace:*",
+      },
       "devDependencies": {
         "@solana-stack-attack/config": "workspace:*",
         "@types/bun": "catalog:",
