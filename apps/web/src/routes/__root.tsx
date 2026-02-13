@@ -1,5 +1,5 @@
+import { env } from '@solana-stack-attack/env/web'
 import type { QueryClient } from '@tanstack/react-query'
-
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools'
 import {
   createRootRouteWithContext,
@@ -12,6 +12,7 @@ import { Toaster } from '@/components/ui/sonner'
 import type { orpc } from '@/utils/orpc'
 import { BottomTabs } from '../components/header'
 import { GameProvider } from '../features/game/data-access/game-provider'
+
 import appCss from '../index.css?url'
 import { authClient } from '../lib/auth-client'
 
@@ -53,6 +54,13 @@ function RootDocument() {
     <html lang="en" className="dark">
       <head>
         <HeadContent />
+        {env.VITE_UMAMI_WEBSITE_ID && (
+          <script
+            defer
+            src="https://stats.colmena.dev/script.js"
+            data-website-id={env.VITE_UMAMI_WEBSITE_ID}
+          />
+        )}
       </head>
       <body>
         <GameProvider>

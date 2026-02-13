@@ -11,7 +11,9 @@ RUN bun install --frozen-lockfile
 FROM base AS builder
 # VITE_ vars must be present at build time for Vite to embed them
 ARG VITE_SERVER_URL
+ARG VITE_UMAMI_WEBSITE_ID
 ENV VITE_SERVER_URL=$VITE_SERVER_URL
+ENV VITE_UMAMI_WEBSITE_ID=$VITE_UMAMI_WEBSITE_ID
 
 COPY . .
 RUN echo "Building with VITE_SERVER_URL=$VITE_SERVER_URL" && bun run build --filter web

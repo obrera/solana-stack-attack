@@ -29,6 +29,7 @@ export const env = createEnv({
   clientPrefix: 'VITE_',
   client: {
     VITE_SERVER_URL: z.url(),
+    VITE_UMAMI_WEBSITE_ID: z.string().optional(),
   },
   runtimeEnv,
   emptyStringAsUndefined: true,
