@@ -56,7 +56,9 @@ function RootDocument() {
       </head>
       <body>
         <GameProvider>
-          <div className={`h-svh ${isAuthenticated ? 'pb-16' : ''}`}>
+          <div
+            className={`h-svh overflow-y-auto ${isAuthenticated ? 'pb-16' : ''}`}
+          >
             <Outlet />
           </div>
           {isAuthenticated && <BottomTabs />}
