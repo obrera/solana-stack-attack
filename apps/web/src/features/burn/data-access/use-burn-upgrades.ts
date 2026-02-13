@@ -1,4 +1,8 @@
-import { getBase64Encoder } from '@solana/kit'
+import {
+  getBase64Encoder,
+  getTransactionDecoder,
+  getTransactionEncoder,
+} from '@solana/kit'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import {
   type UiWalletAccount,
@@ -49,8 +53,11 @@ export function useSignAndSendBase64Tx() {
 
   return useCallback(
     async (base64Tx: string) => {
-      const txBytes = new Uint8Array(getBase64Encoder().encode(base64Tx))
-      await signAndSend({ transaction: txBytes })
+      // Decode and re-encode to ensure proper wire format with signature slots
+      const txBytes = getBase64Encoder().encode(base64Tx)
+      const decoded = getTransactionDecoder().decode(txBytes)
+      const reEncoded = getTransactionEncoder().encode(decoded)
+      await signAndSend({ transaction: new Uint8Array(reEncoded) })
     },
     [signAndSend],
   )
