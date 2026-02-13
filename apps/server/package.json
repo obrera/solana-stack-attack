@@ -14,15 +14,16 @@
     "@orpc/openapi": "catalog:",
     "@orpc/server": "catalog:",
     "@orpc/zod": "catalog:",
+    "@solana-stack-attack/analytics": "workspace:*",
     "@solana-stack-attack/api": "workspace:*",
     "@solana-stack-attack/auth": "workspace:*",
     "@solana-stack-attack/db": "workspace:*",
     "@solana-stack-attack/env": "workspace:*",
     "better-auth": "catalog:",
     "dotenv": "catalog:",
+    "drizzle-orm": "^0.45.1",
     "hono": "catalog:",
-    "zod": "catalog:",
-    "@solana-stack-attack/analytics": "workspace:*"
+    "zod": "catalog:"
   },
   "devDependencies": {
     "@solana-stack-attack/config": "workspace:*",
