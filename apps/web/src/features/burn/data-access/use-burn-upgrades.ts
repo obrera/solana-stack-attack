@@ -9,6 +9,16 @@ import { useCallback } from 'react'
 import { toast } from 'sonner'
 import { client, orpc } from '@/utils/orpc'
 
+function formatError(error: unknown): string {
+  if (error instanceof Error) return error.message
+  if (typeof error === 'string') return error
+  try {
+    return JSON.stringify(error)
+  } catch {
+    return 'Unknown error'
+  }
+}
+
 export function useBurnUpgrades() {
   return useQuery({
     ...orpc.burn.upgrades.queryOptions(),
@@ -69,9 +79,8 @@ export function useBurnPurchase() {
       })
     },
     onError: (error) => {
-      toast.error(
-        `Burn failed: ${error instanceof Error ? error.message : String(error)}`,
-      )
+      console.error('[Burn] Purchase failed:', error)
+      toast.error(`Burn failed: ${formatError(error)}`)
     },
   })
 }
@@ -105,9 +114,8 @@ export function useFuelCellPurchase() {
       })
     },
     onError: (error) => {
-      toast.error(
-        `Fuel cell failed: ${error instanceof Error ? error.message : String(error)}`,
-      )
+      console.error('[Burn] Fuel cell failed:', error)
+      toast.error(`Fuel cell failed: ${formatError(error)}`)
     },
   })
 }
