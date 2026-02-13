@@ -3,6 +3,7 @@ import { OpenAPIReferencePlugin } from '@orpc/openapi/plugins'
 import { onError } from '@orpc/server'
 import { RPCHandler } from '@orpc/server/fetch'
 import { ZodToJsonSchemaConverter } from '@orpc/zod/zod4'
+import { umamiTracking } from '@solana-stack-attack/analytics/umami-tracking'
 import { createContext } from '@solana-stack-attack/api/context'
 import { appRouter } from '@solana-stack-attack/api/routers/index'
 import { auth } from '@solana-stack-attack/auth'
@@ -14,6 +15,7 @@ import { logger } from 'hono/logger'
 const app = new Hono()
 
 app.use(logger())
+app.use('*', umamiTracking)
 app.use(
   '/*',
   cors({

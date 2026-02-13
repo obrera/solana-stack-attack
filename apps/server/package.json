@@ -21,7 +21,8 @@
     "better-auth": "catalog:",
     "dotenv": "catalog:",
     "hono": "catalog:",
-    "zod": "catalog:"
+    "zod": "catalog:",
+    "@solana-stack-attack/analytics": "workspace:*"
   },
   "devDependencies": {
     "@solana-stack-attack/config": "workspace:*",

@@ -1,0 +1,23 @@
+{
+  "devDependencies": {
+    "@types/bun": "catalog:",
+    "@solana-stack-attack/config": "workspace:*",
+    "typescript": "catalog:"
+  },
+  "exports": {
+    "./*": "./src/*.ts"
+  },
+  "name": "@solana-stack-attack/analytics",
+  "private": false,
+  "scripts": {
+    "check-types": "tsc --noEmit"
+  },
+  "type": "module",
+  "version": "0.0.0",
+  "dependencies": {
+    "@umami/node": "^0.4.0"
+  },
+  "peerDependencies": {
+    "hono": "*"
+  }
+}
