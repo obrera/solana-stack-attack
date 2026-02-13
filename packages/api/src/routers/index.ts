@@ -2,6 +2,7 @@ import type { RouterClient } from '@orpc/server'
 import { burnRouter } from '../features/burn'
 import { gameRouter } from '../features/game'
 import { rewardRouter } from '../features/reward'
+import { userRouter } from '../features/user'
 import { publicProcedure } from '../index'
 import { feePayerRouter } from './fee-payer'
 
@@ -13,6 +14,7 @@ export const appRouter = {
   feePayer: feePayerRouter,
   game: gameRouter,
   reward: rewardRouter,
+  user: userRouter,
 }
 export type AppRouter = typeof appRouter
 export type AppRouterClient = RouterClient<typeof appRouter>
