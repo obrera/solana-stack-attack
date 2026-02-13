@@ -4,6 +4,7 @@ import { z } from 'zod'
 
 export const env = createEnv({
   server: {
+    AUTH_COOKIE_DOMAIN: z.string().min(1).optional(),
     BETTER_AUTH_SECRET: z.string().min(32),
     BETTER_AUTH_URL: z.url(),
     CORS_ORIGINS: z
