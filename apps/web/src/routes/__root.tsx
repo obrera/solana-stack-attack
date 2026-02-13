@@ -11,6 +11,7 @@ import { TanStackRouterDevtools } from '@tanstack/react-router-devtools'
 import { Toaster } from '@/components/ui/sonner'
 import type { orpc } from '@/utils/orpc'
 import { BottomTabs } from '../components/header'
+import { WalletMismatchGuard } from '../components/wallet-mismatch-guard'
 import { GameProvider } from '../features/game/data-access/game-provider'
 
 import appCss from '../index.css?url'
@@ -64,12 +65,14 @@ function RootDocument() {
       </head>
       <body>
         <GameProvider>
-          <div
-            className={`h-svh overflow-y-auto ${isAuthenticated ? 'pb-16' : ''}`}
-          >
-            <Outlet />
-          </div>
-          {isAuthenticated && <BottomTabs />}
+          <WalletMismatchGuard>
+            <div
+              className={`h-svh overflow-y-auto ${isAuthenticated ? 'pb-16' : ''}`}
+            >
+              <Outlet />
+            </div>
+            {isAuthenticated && <BottomTabs />}
+          </WalletMismatchGuard>
         </GameProvider>
         <Toaster richColors />
         <TanStackRouterDevtools position="top-left" />
