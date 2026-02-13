@@ -49,6 +49,7 @@ export function useSignAndSendBase64Tx() {
 
   return useCallback(
     async (base64Tx: string) => {
+      console.log('[Burn] Base64 transaction:', base64Tx)
       const txBytes = new Uint8Array(getBase64Encoder().encode(base64Tx))
       await signAndSend({ transaction: txBytes })
     },
