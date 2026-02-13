@@ -36,5 +36,5 @@ export function solanaMobileWalletAdapter({
     chainSelector: createDefaultChainSelector(),
     onWalletNotFound: createDefaultWalletNotFoundHandler(),
   })
-  console.log('Loaded Solana Mobile Wallet Adapter')
+  // Solana Mobile Wallet Adapter loaded
 }
