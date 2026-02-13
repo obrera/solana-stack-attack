@@ -77,4 +77,11 @@ app.get('/', (c) => {
   return c.text('OK')
 })
 
+app.get('/health', (c) => {
+  return c.json({
+    status: 'ok',
+    uptime: Math.floor(process.uptime()),
+  })
+})
+
 export default app
