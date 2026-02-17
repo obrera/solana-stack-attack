@@ -1,5 +1,6 @@
 services:
   sqld:
+    restart: unless-stopped
     image: ghcr.io/tursodatabase/libsql-server:latest
     volumes:
       - sqld-data:/var/lib/sqld
@@ -9,6 +10,7 @@ services:
       - internal
 
   server:
+    restart: unless-stopped
     build:
       context: .
       dockerfile: Dockerfile.server
@@ -32,6 +34,7 @@ services:
       - dokploy-network
 
   web:
+    restart: unless-stopped
     build:
       context: .
       dockerfile: Dockerfile.web
