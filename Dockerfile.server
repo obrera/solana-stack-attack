@@ -1,4 +1,4 @@
-FROM oven/bun:1.3.8 AS base
+FROM oven/bun:1.3.8 AS builder
 WORKDIR /app
 
 COPY bun.lock package.json turbo.json tsconfig.json ./
@@ -7,21 +7,15 @@ COPY packages ./packages
 COPY turbo ./turbo
 
 RUN bun install --frozen-lockfile --linker=hoisted
+RUN cd apps/server && bun build --compile --minify --bytecode --target=bun-linux-x64 ./src/serve.ts --outfile server
 
-FROM base AS builder
-COPY . .
-RUN bun run build --filter server
-
-FROM oven/bun:1.3.8 AS runner
+FROM debian:bookworm-slim AS runner
 WORKDIR /app
-ENV NODE_ENV=production
 
-COPY --from=builder /app/apps/server/dist ./apps/server/dist
-COPY --from=builder /app/apps/server/package.json ./apps/server/package.json
-COPY --from=builder /app/packages/db ./packages/db
-COPY --from=builder /app/node_modules ./node_modules
-COPY --from=builder /app/package.json ./package.json
-COPY --from=builder /app/bun.lock ./bun.lock
+RUN apt-get update && apt-get install -y --no-install-recommends ca-certificates && rm -rf /var/lib/apt/lists/*
+
+COPY --from=builder /app/apps/server/server ./server
+COPY --from=builder /app/packages/db/src/migrations ./migrations
 
 EXPOSE 3000
-CMD ["bun", "run", "--cwd", "apps/server", "start"]
+CMD ["./server"]
