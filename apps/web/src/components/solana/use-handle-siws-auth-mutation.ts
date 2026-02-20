@@ -2,9 +2,9 @@ import { assertIsAddress } from '@solana/kit'
 import { env } from '@solana-stack-attack/env/web'
 import { useMutation } from '@tanstack/react-query'
 import type { UiWallet, UiWalletAccount } from '@wallet-ui/react'
-import { useSignIn } from '@wallet-ui/react'
 import { authClient } from '@/lib/auth-client'
 import { handleSiwsAuth } from './handle-siws-auth'
+import { useSignInCompat } from './use-sign-in-compat'
 
 interface UseSiwsAuthOptions {
   account: UiWalletAccount
@@ -29,7 +29,7 @@ export function useHandleSiwsAuthMutation({
   const address = account.address
   assertIsAddress(address)
   const session = authClient.useSession()
-  const signIn = useSignIn(wallet)
+  const signIn = useSignInCompat(wallet, account)
 
   return useMutation({
     mutationFn: () =>

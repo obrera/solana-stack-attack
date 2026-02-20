@@ -8,11 +8,16 @@ import type {
   SolanaAuthNonceResponse,
   SolanaAuthVerifyResponse,
 } from '@solana-stack-attack/better-auth-solana/types'
-import type {
-  SolanaSignInInput,
-  SolanaSignInOutput,
-  WalletAccount,
-} from '@wallet-ui/react'
+import type { SolanaSignInInput } from '@wallet-ui/react'
+
+/** Minimal shape returned by both signIn and our signMessage fallback */
+interface SignInResult {
+  account: { address: string }
+  signedMessage: Uint8Array
+  signature: Uint8Array
+}
+
+type SignInFn = (input: SolanaSignInInput) => Promise<SignInResult>
 
 export async function handleSiwsAuth({
   address,
@@ -24,7 +29,7 @@ export async function handleSiwsAuth({
   address: Address
   baseUrl: string
   refresh: () => Promise<void>
-  signIn: (input: SolanaSignInInput) => Promise<SolanaSignInOutput>
+  signIn: SignInFn
   statement: string
 }) {
   const nonce = await fetchNonce({ address, baseUrl })
@@ -80,14 +85,13 @@ async function createAndSignMessage({
 }: {
   address: Address
   nonce: SolanaAuthNonceResponse
-  signIn: (input: SolanaSignInInput) => Promise<SolanaSignInOutput>
+  signIn: SignInFn
   statement: string
-}): Promise<{ account: WalletAccount; message: string; signature: Signature }> {
+}): Promise<{ message: string; signature: Signature }> {
   const input = createSignInInput({ address, nonce, statement })
-  const { account, signedMessage, signature } = await signIn(input)
+  const { signedMessage, signature } = await signIn(input)
 
   return {
-    account,
     message: new TextDecoder().decode(signedMessage),
     signature: signatureBytesToSignature(signature),
   }
